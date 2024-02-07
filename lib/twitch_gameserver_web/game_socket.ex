@@ -35,6 +35,11 @@ defmodule TwitchGameServerWeb.GameSocket do
           CommandServer.set_rate(rate_ms)
           %{success: true, rate: rate_ms}
 
+        %{"set_queue_limit" => limit} ->
+          Logger.debug("[GameSocket] set queue limit: #{limit}")
+          CommandServer.set_queue_limit(limit)
+          %{success: true}
+
         %{"set_filters" => %{"commands" => commands, "matches" => matches}} ->
           Logger.debug("[GameSocket] filter: #{inspect(commands)} and #{inspect(matches)}")
           matches = Enum.map(matches, &Regex.compile!/1)

@@ -7,6 +7,7 @@ defmodule TwitchGameServer.CommandServer do
   alias TwitchGameServer.CommandQueue
 
   @default_cmd_rate 1000
+  @default_queue_limit 20
 
   @doc """
   Starts the command server for orchestrating user command queues.
@@ -25,6 +26,10 @@ defmodule TwitchGameServer.CommandServer do
 
   def set_rate(rate_ms) do
     GenServer.cast(__MODULE__, {:set_rate, rate_ms})
+  end
+
+  def set_queue_limit(limit) do
+    GenServer.cast(__MODULE__, {:set_queue_limit, limit})
   end
 
   def set_filters(filters) do
@@ -55,6 +60,7 @@ defmodule TwitchGameServer.CommandServer do
   def init(opts) do
     state = %{
       filters: %{commands: [], matches: []},
+      queue_limit: Keyword.get(opts, :queue_limit, @default_queue_limit),
       rate: Keyword.get(opts, :rate, @default_cmd_rate),
       queues: %{}
     }
@@ -71,6 +77,10 @@ defmodule TwitchGameServer.CommandServer do
   @impl GenServer
   def handle_cast({:set_rate, rate_ms}, state) do
     {:noreply, %{state | rate: rate_ms}}
+  end
+
+  def handle_cast({:set_queue_limit, limit}, state) do
+    {:noreply, %{state | queue_limit: limit}}
   end
 
   def handle_cast({:set_filters, filters}, state) do
@@ -106,15 +116,11 @@ defmodule TwitchGameServer.CommandServer do
 
   @impl GenServer
   def handle_cast({:add, cmd, msg}, state) do
+    # TODO: Limit the user's queue but the state.queue_limit.
     if command_allowed?(cmd, state.filters) or command_matches?(cmd, state.filters) do
       queues =
         Map.put_new_lazy(state.queues, msg.user_name, fn ->
-          child_spec = CommandQueue.child_spec(msg.user_name)
-
-          {:ok, pid} =
-            DynamicSupervisor.start_child(TwitchGameServer.DynamicSupervisor, child_spec)
-
-          pid
+          start_queue(msg.user_name)
         end)
 
       queues
@@ -163,6 +169,16 @@ defmodule TwitchGameServer.CommandServer do
 
   defp command_matches?(cmd, %{matches: matches}) do
     Enum.any?(matches, &Regex.match?(&1, cmd))
+  end
+
+  defp start_queue(user) do
+    {:ok, pid} =
+      DynamicSupervisor.start_child(
+        TwitchGameServer.DynamicSupervisor,
+        CommandQueue.child_spec(user)
+      )
+
+    pid
   end
 
   defp schedule_next(%{rate: rate}) do

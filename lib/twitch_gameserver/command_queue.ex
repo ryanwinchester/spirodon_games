@@ -4,8 +4,6 @@ defmodule TwitchGameServer.CommandQueue do
   """
   use GenServer
 
-  @type command :: :left | :right | :up | :down
-
   @doc """
   Start the CommandQueue GenServer.
   """
@@ -28,7 +26,7 @@ defmodule TwitchGameServer.CommandQueue do
   @doc """
   Add a command to the queue.
   """
-  @spec add(pid(), command(), TwitchChat.Events.Message.t()) :: :ok
+  @spec add(pid(), String.t(), TwitchChat.Events.Message.t()) :: :ok
   def add(pid, cmd, msg) do
     GenServer.cast(pid, {:add, cmd, msg})
   end
@@ -36,7 +34,7 @@ defmodule TwitchGameServer.CommandQueue do
   @doc """
   Get the next command from the queue.
   """
-  @spec out(pid()) :: {command(), DateTime.t()}
+  @spec out(pid()) :: {String.t(), DateTime.t()}
   def out(pid) do
     GenServer.call(pid, :out)
   end
