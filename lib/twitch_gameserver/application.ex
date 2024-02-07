@@ -18,7 +18,8 @@ defmodule TwitchGameServer.Application do
       # Start a worker by calling: TwitchGameServer.Worker.start_link(arg)
       # {TwitchGameServer.Worker, arg},
       # Start to serve requests, typically the last entry
-      TwitchGameServerWeb.Endpoint
+      TwitchGameServerWeb.Endpoint,
+      {DynamicSupervisor, name: TwitchGameServer.DynamicSupervisor, strategy: :one_for_one}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
