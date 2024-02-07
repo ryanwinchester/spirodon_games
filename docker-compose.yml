@@ -3,11 +3,15 @@ version: '3.8'
 services:
   server:
     build: .
+    volumes:
+      - ./db/db_file.db:${DATABASE_PATH}
+      - /etc/letsencrypt/live/spirodon.games/privkey.pem:${GAMESERVER_SSL_KEY_PATH}
+      - /etc/letsencrypt/live/spirodon.games/fullchain.pem:${GAMESERVER_SSL_CERT_PATH}
     environment:
       DATABASE_PATH: ${DATABASE_PATH}
       SECRET_KEY_BASE: ${SECRET_KEY_BASE}
-      PORT: ${PORT}
       PHX_HOST: ${PHX_HOST}
+      PORT: ${PORT}
       GAMESERVER_SSL_KEY_PATH: ${GAMESERVER_SSL_KEY_PATH}
       GAMESERVER_SSL_CERT_PATH: ${GAMESERVER_SSL_CERT_PATH}
       TWITCH_USER: ${TWITCH_USER}
@@ -16,7 +20,3 @@ services:
       TWITCH_OAUTH_TOKEN: ${TWITCH_OAUTH_TOKEN}
     ports:
       - ${PORT}:${PORT}
-    volumes:
-      - ./db/db_file.db:/etc/twitch_gameserver/db_data/db_file.db
-      - /etc/letsencrypt/live/spirodon.games/privkey.pem:/etc/twitch_gameserver/ssl_certs/privkey.pem
-      - /etc/letsencrypt/live/spirodon.games/fullchain.pem:/etc/twitch_gameserver/ssl_certs/fullchain.pem
