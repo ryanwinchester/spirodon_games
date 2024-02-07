@@ -13,7 +13,10 @@ defmodule TwitchGameServerWeb.Endpoint do
 
   socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
 
-  socket "/gamesocket", TwitchGameServerWeb.GameSocket, websocket: [connect_info: []]
+  socket "/gamesocket", TwitchGameServerWeb.GameSocket, websocket: [
+    connect_info: [],
+    check_origin: false
+  ]
 
   # Serve at "/" the static files from "priv/static" directory.
   #
