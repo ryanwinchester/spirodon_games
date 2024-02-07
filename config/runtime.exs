@@ -50,16 +50,27 @@ if config_env() == :prod do
   config :twitch_gameserver, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
   config :twitch_gameserver, TwitchGameServerWeb.Endpoint,
+    # Test SSL works then force it. Test force works, then remove `expires` override.
+    # force_ssl: [hsts: true, expires: 500],
     url: [host: host, port: 443, scheme: "https"],
-    http: [
-      # Enable IPv6 and bind on all interfaces.
-      # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
-      # See the documentation on https://hexdocs.pm/plug_cowboy/Plug.Cowboy.html
-      # for details about using IPv6 vs IPv4 and loopback vs public addresses.
-      ip: {0, 0, 0, 0, 0, 0, 0, 0},
-      port: port
-    ],
     secret_key_base: secret_key_base
+
+  # Optional SSL config.
+  case port do
+    443 ->
+      config :twitch_gameserver, TwitchGameServerWeb.Endpoint,
+        # Test SSL works then force it. Then remove `expires` override after it works.
+        # force_ssl: [hsts: true, expires: 500],
+        https: [
+          port: 443,
+          cipher_suite: :strong,
+          keyfile: System.get_env("GAMESERVER_SSL_KEY_PATH"),
+          certfile: System.get_env("GAMESERVER_SSL_CERT_PATH")
+        ]
+
+    port ->
+      config :twitch_gameserver, TwitchGameServerWeb.Endpoint, http: [port: port]
+  end
 
   # ## SSL Support
   #
