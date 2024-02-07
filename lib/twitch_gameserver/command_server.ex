@@ -84,7 +84,7 @@ defmodule TwitchGameServer.CommandServer do
   end
 
   def handle_cast({:set_filters, filters}, state) do
-    {:noreply, %{state | filters: filters}}
+    {:noreply, %{state | filters: Map.new(filters)}}
   end
 
   def handle_cast({:add_command_filter, filter}, state) do
@@ -118,13 +118,13 @@ defmodule TwitchGameServer.CommandServer do
   def handle_cast({:add, cmd, msg}, state) do
     if enqueue_command?(cmd, state) do
       queues =
-        Map.put_new_lazy(state.queues, msg.user_name, fn ->
-          start_queue(msg.user_name)
+        Map.put_new_lazy(state.queues, msg.user_login, fn ->
+          start_queue(msg.user_login)
         end)
 
       Task.start(fn ->
         queues
-        |> Map.fetch!(msg.user_name)
+        |> Map.fetch!(msg.user_login)
         |> CommandQueue.add(cmd, msg, state.queue_limit)
       end)
 

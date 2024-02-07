@@ -6,6 +6,8 @@ defmodule TwitchGameServer.CommandQueue do
 
   @type message :: TwitchChat.Events.Message.t()
 
+  @type role :: :broadcaster | :mod | :sub | :normal
+
   @doc """
   Start the CommandQueue GenServer.
   """
@@ -36,7 +38,7 @@ defmodule TwitchGameServer.CommandQueue do
   @doc """
   Get the next command from the queue.
   """
-  @spec out(pid()) :: {String.t(), DateTime.t()}
+  @spec out(pid()) :: {user :: String.t(), unix_time :: integer(), role :: String.t()}
   def out(pid) do
     GenServer.call(pid, :out)
   end
@@ -53,8 +55,9 @@ defmodule TwitchGameServer.CommandQueue do
   @impl GenServer
   def handle_cast({:add, cmd, msg, limit}, queue) do
     if :queue.len(queue) < limit do
-      item = {cmd, msg.timestamp, role(msg)}
-      {:noreply, :queue.in(item, queue)}
+      timestamp = DateTime.to_unix(msg.timestamp, :millisecond)
+      role = role_from_message(msg)
+      {:noreply, :queue.in({cmd, timestamp, role}, queue)}
     else
       {:noreply, queue}
     end
@@ -73,7 +76,10 @@ defmodule TwitchGameServer.CommandQueue do
   # ----------------------------------------------------------------------------
 
   # Get the role from the message.
-  defp role(_msg) do
-    nil
-  end
+  # Note: If we switch to EventSub, this will need to change.
+  defp role_from_message(%{user_login: user, channel: user}), do: :broadcaster
+  defp role_from_message(%{is_mod?: true}), do: :mod
+  defp role_from_message(%{is_vip?: true}), do: :vip
+  defp role_from_message(%{is_sub?: true}), do: :sub
+  defp role_from_message(_msg), do: :normal
 end

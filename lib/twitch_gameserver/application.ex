@@ -19,7 +19,8 @@ defmodule TwitchGameServer.Application do
       # Start to serve requests, typically the last entry
       TwitchGameServerWeb.Endpoint,
       {DynamicSupervisor, name: TwitchGameServer.DynamicSupervisor, strategy: :one_for_one},
-      TwitchGameServer.CommandServer
+      TwitchGameServer.CommandServer,
+      {TwitchChat.Supervisor, Application.get_env(:twitch_gameserver, :bot, start?: false)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
