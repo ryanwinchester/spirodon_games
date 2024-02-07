@@ -165,8 +165,6 @@ defmodule TwitchGameServer.CommandServer do
   end
 
   defp enqueue_command?(cmd, state) do
-    # TODO: Limit the user's queue size by the `state.queue_limit`.
-
     Enum.any?(state.filters.commands, &match?(^&1 <> _, cmd)) or
       Enum.any?(state.filters.matches, &Regex.match?(&1, cmd))
   end
