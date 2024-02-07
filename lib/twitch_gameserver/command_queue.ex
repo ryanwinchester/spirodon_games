@@ -11,7 +11,7 @@ defmodule TwitchGameServer.CommandQueue do
   """
   @spec start_link(term()) :: GenServer.on_start()
   def start_link(opts) do
-    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+    GenServer.start_link(__MODULE__, opts)
   end
 
   @doc """
@@ -51,9 +51,15 @@ defmodule TwitchGameServer.CommandQueue do
   end
 
   @impl GenServer
-  def handle_cast({:add, cmd, msg}, queue) do
-    item = {cmd, msg.timestamp}
-    {:noreply, :queue.in(item, queue)}
+  def handle_cast({:add, cmds, msg}, queue) do
+    queue =
+      cmds
+      |> List.wrap()
+      |> Enum.reduce(queue, fn cmd, q ->
+        :queue.in({cmd, msg.timestamp}, q)
+      end)
+
+    {:noreply, queue}
   end
 
   @impl GenServer

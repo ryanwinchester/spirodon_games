@@ -2,7 +2,7 @@ defmodule TwitchGameServer.TwitchChat do
   use TwitchChat.Bot
 
   alias TwitchChat.Events.Message
-  alias TwitchGameServer.CommandQueue
+  alias TwitchGameServer.CommandServer
 
   @cmd_chain_limit 20
 
@@ -10,8 +10,12 @@ defmodule TwitchGameServer.TwitchChat do
   def handle_event(%Message{message: "!" <> cmd} = msg) do
     cmd
     |> decode()
-    |> CommandQueue.add(msg)
+    |> CommandServer.add(msg)
   end
+
+  # ----------------------------------------------------------------------------
+  # Helpers
+  # ----------------------------------------------------------------------------
 
   defp decode("up"), do: [:up]
   defp decode("down"), do: [:down]
