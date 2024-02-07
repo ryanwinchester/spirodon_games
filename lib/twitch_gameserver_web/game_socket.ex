@@ -28,46 +28,50 @@ defmodule TwitchGameServerWeb.GameSocket do
 
   @impl Phoenix.Socket.Transport
   def handle_in({text, _opts}, state) do
-    case Jason.decode!(text) do
-      %{"set_rate" => rate_ms} ->
-        Logger.debug("[GameSocket] setting rate to: #{rate_ms}ms")
-        CommandServer.set_rate(rate_ms)
-        {:reply, :ok, {:text, Jason.encode!(%{success: true, rate: rate_ms})}, state}
+    result =
+      case Jason.decode!(text) do
+        %{"set_rate" => rate_ms} ->
+          Logger.debug("[GameSocket] setting rate to: #{rate_ms}ms")
+          CommandServer.set_rate(rate_ms)
+          %{success: true, rate: rate_ms}
 
-      %{"set_filters" => %{"commands" => commands, "matches" => matches}} ->
-        Logger.debug("[GameSocket] filter: #{inspect(commands)} and #{inspect(matches)}")
-        CommandServer.set_filters(commands: commands, matches: matches)
-        {:reply, :ok, {:text, Jason.encode!(%{success: true})}, state}
+        %{"set_filters" => %{"commands" => commands, "matches" => matches}} ->
+          Logger.debug("[GameSocket] filter: #{inspect(commands)} and #{inspect(matches)}")
+          matches = Enum.map(matches, &Regex.compile!/1)
+          CommandServer.set_filters(commands: commands, matches: matches)
+          %{success: true}
 
-      %{"add_command_filter" => command} ->
-        Logger.debug("[GameSocket] add command filter: #{command}")
-        CommandServer.add_command_filter(command)
-        {:reply, :ok, {:text, Jason.encode!(%{success: true})}, state}
+        %{"add_command_filter" => command} ->
+          Logger.debug("[GameSocket] add command filter: #{command}")
+          CommandServer.add_command_filter(command)
+          %{success: true}
 
-      %{"remove_command_filter" => command} ->
-        Logger.debug("[GameSocket] remove command filter: #{command}")
-        CommandServer.remove_command_filter(command)
-        {:reply, :ok, {:text, Jason.encode!(%{success: true})}, state}
+        %{"remove_command_filter" => command} ->
+          Logger.debug("[GameSocket] remove command filter: #{command}")
+          CommandServer.remove_command_filter(command)
+          %{success: true}
 
-      %{"add_match_filter" => match} ->
-        Logger.debug("[GameSocket] add match filter: #{match}")
-        CommandServer.add_match_filter(match)
-        {:reply, :ok, {:text, Jason.encode!(%{success: true})}, state}
+        %{"add_match_filter" => match} ->
+          Logger.debug("[GameSocket] add match filter: #{match}")
+          Regex.compile!(match) |> CommandServer.add_match_filter()
+          %{success: true}
 
-      %{"remove_match_filter" => match} ->
-        Logger.debug("[GameSocket] remove match filter: #{match}")
-        CommandServer.remove_match_filter(match)
-        {:reply, :ok, {:text, Jason.encode!(%{success: true})}, state}
+        %{"remove_match_filter" => match} ->
+          Logger.debug("[GameSocket] remove match filter: #{match}")
+          Regex.compile!(match) |> CommandServer.remove_match_filter()
+          %{success: true}
 
-      %{"flush_user" => username} ->
-        Logger.debug("[GameSocket] flush user queue: #{username}")
-        CommandServer.flush_user(username)
-        {:reply, :ok, {:text, Jason.encode!(%{success: true})}, state}
+        %{"flush_user" => username} ->
+          Logger.debug("[GameSocket] flush user queue: #{username}")
+          CommandServer.flush_user(username)
+          %{success: true}
 
-      msg ->
-        Logger.warning("[GameSocket] unhandled text frame: #{inspect(msg)}")
-        {:reply, :ok, {:text, Jason.encode!(%{success: false, error: "unrecognized"})}, state}
-    end
+        msg ->
+          Logger.warning("[GameSocket] unhandled text frame: #{inspect(msg)}")
+          %{success: false, error: "unrecognized"}
+      end
+
+    {:reply, :ok, {:text, Jason.encode!(result)}, state}
   end
 
   @impl Phoenix.Socket.Transport

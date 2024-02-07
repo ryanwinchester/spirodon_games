@@ -54,6 +54,7 @@ defmodule TwitchGameServer.CommandServer do
   @impl GenServer
   def init(opts) do
     state = %{
+      filters: %{commands: [], matches: []},
       rate: Keyword.get(opts, :rate, @default_cmd_rate),
       queues: %{}
     }
@@ -72,9 +73,24 @@ defmodule TwitchGameServer.CommandServer do
     {:noreply, %{state | rate: rate_ms}}
   end
 
-  def handle_cast({:set_filters, _filters}, state) do
-    # TODO: set filters `:commands` and `:matches`.
-    {:noreply, state}
+  def handle_cast({:set_filters, filters}, state) do
+    {:noreply, %{state | filters: filters}}
+  end
+
+  def handle_cast({:add_command_filter, filter}, state) do
+    {:noreply, update_in(state, [:filters, :commands], &[filter | &1])}
+  end
+
+  def handle_cast({:remove_command_filter, filter}, state) do
+    {:noreply, update_in(state, [:filters, :commands], &List.delete(&1, filter))}
+  end
+
+  def handle_cast({:add_match_filter, filter}, state) do
+    {:noreply, update_in(state, [:filters, :matches], &[filter | &1])}
+  end
+
+  def handle_cast({:remove_match_filter, filter}, state) do
+    {:noreply, update_in(state, [:filters, :matches], &List.delete(&1, filter))}
   end
 
   def handle_cast({:flush_user, username}, state) do
@@ -90,19 +106,25 @@ defmodule TwitchGameServer.CommandServer do
 
   @impl GenServer
   def handle_cast({:add, cmd, msg}, state) do
-    # TODO: filter on allowed commands and matches.
-    queues =
-      Map.put_new_lazy(state.queues, msg.user_name, fn ->
-        child_spec = CommandQueue.child_spec(msg.user_name)
-        {:ok, pid} = DynamicSupervisor.start_child(TwitchGameServer.DynamicSupervisor, child_spec)
-        pid
-      end)
+    if command_allowed?(cmd, state.filters) or command_matches?(cmd, state.filters) do
+      queues =
+        Map.put_new_lazy(state.queues, msg.user_name, fn ->
+          child_spec = CommandQueue.child_spec(msg.user_name)
 
-    queues
-    |> Map.fetch!(msg.user_name)
-    |> CommandQueue.add(cmd, msg)
+          {:ok, pid} =
+            DynamicSupervisor.start_child(TwitchGameServer.DynamicSupervisor, child_spec)
 
-    {:noreply, %{state | queues: queues}}
+          pid
+        end)
+
+      queues
+      |> Map.fetch!(msg.user_name)
+      |> CommandQueue.add(cmd, msg)
+
+      {:noreply, %{state | queues: queues}}
+    else
+      {:noreply, state}
+    end
   end
 
   @impl GenServer
@@ -133,6 +155,14 @@ defmodule TwitchGameServer.CommandServer do
     end)
     |> Task.await_many()
     |> Enum.reject(&is_nil/1)
+  end
+
+  defp command_allowed?(cmd, %{commands: commands}) do
+    Enum.any?(commands, &match?(^&1 <> _, cmd))
+  end
+
+  defp command_matches?(cmd, %{matches: matches}) do
+    Enum.any?(matches, &Regex.match?(&1, cmd))
   end
 
   defp schedule_next(%{rate: rate}) do

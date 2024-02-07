@@ -51,15 +51,8 @@ defmodule TwitchGameServer.CommandQueue do
   end
 
   @impl GenServer
-  def handle_cast({:add, cmds, msg}, queue) do
-    queue =
-      cmds
-      |> List.wrap()
-      |> Enum.reduce(queue, fn cmd, q ->
-        :queue.in({cmd, msg.timestamp}, q)
-      end)
-
-    {:noreply, queue}
+  def handle_cast({:add, cmd, msg}, queue) do
+    {:noreply, :queue.in({cmd, msg.timestamp}, queue)}
   end
 
   @impl GenServer
