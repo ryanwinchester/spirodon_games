@@ -79,8 +79,8 @@ if config_env() == :prod do
         https: [
           port: 443,
           cipher_suite: :strong,
-          keyfile: System.get_env("GAMESERVER_SSL_KEY_PATH"),
-          certfile: System.get_env("GAMESERVER_SSL_CERT_PATH")
+          keyfile: System.fetch_env!("GAMESERVER_SSL_KEY_PATH"),
+          certfile: System.fetch_env!("GAMESERVER_SSL_CERT_PATH")
         ]
 
     port ->
