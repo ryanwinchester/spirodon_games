@@ -2,9 +2,20 @@ version: '3.8'
 
 services:
   server:
-    image: ryan-server:latest
+    build: .
+    environment:
+      DATABASE_PATH: ${DATABASE_PATH}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      PORT: ${PORT}
+      PHX_HOST: ${PHX_HOST}
+      GAMESERVER_SSL_KEY_PATH: ${GAMESERVER_SSL_KEY_PATH}
+      GAMESERVER_SSL_CERT_PATH: ${GAMESERVER_SSL_CERT_PATH}
+      TWITCH_USER: ${TWITCH_USER}
+      TWITCH_CHANNELS: ${TWITCH_CHANNELS}
+      TWITCH_MOD_CHANNELS: ${TWITCH_MOD_CHANNELS}
+      TWITCH_OAUTH_TOKEN: ${TWITCH_OAUTH_TOKEN}
     ports:
-      - 443:443
+      - ${PORT}:${PORT}
     volumes:
       - ./db/db_file.db:/etc/twitch_gameserver/db_data/db_file.db
       - /etc/letsencrypt/live/spirodon.games/privkey.pem:/etc/twitch_gameserver/ssl_certs/privkey.pem
