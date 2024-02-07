@@ -116,16 +116,17 @@ defmodule TwitchGameServer.CommandServer do
 
   @impl GenServer
   def handle_cast({:add, cmd, msg}, state) do
-    # TODO: Limit the user's queue but the state.queue_limit.
-    if command_allowed?(cmd, state.filters) or command_matches?(cmd, state.filters) do
+    if enqueue_command?(cmd, state) do
       queues =
         Map.put_new_lazy(state.queues, msg.user_name, fn ->
           start_queue(msg.user_name)
         end)
 
-      queues
-      |> Map.fetch!(msg.user_name)
-      |> CommandQueue.add(cmd, msg)
+      Task.start(fn ->
+        queues
+        |> Map.fetch!(msg.user_name)
+        |> CommandQueue.add(cmd, msg, state.queue_limit)
+      end)
 
       {:noreply, %{state | queues: queues}}
     else
@@ -154,8 +155,8 @@ defmodule TwitchGameServer.CommandServer do
     queues
     |> Enum.map(fn {user, pid} ->
       Task.async(fn ->
-        with {cmd, timestamp} <- CommandQueue.out(pid) do
-          %{user: user, command: cmd, timestamp: timestamp}
+        with {cmd, timestamp, role} <- CommandQueue.out(pid) do
+          %{cmd: cmd, ts: timestamp, user: user, role: role}
         end
       end)
     end)
@@ -163,12 +164,11 @@ defmodule TwitchGameServer.CommandServer do
     |> Enum.reject(&is_nil/1)
   end
 
-  defp command_allowed?(cmd, %{commands: commands}) do
-    Enum.any?(commands, &match?(^&1 <> _, cmd))
-  end
+  defp enqueue_command?(cmd, state) do
+    # TODO: Limit the user's queue size by the `state.queue_limit`.
 
-  defp command_matches?(cmd, %{matches: matches}) do
-    Enum.any?(matches, &Regex.match?(&1, cmd))
+    Enum.any?(state.filters.commands, &match?(^&1 <> _, cmd)) or
+      Enum.any?(state.filters.matches, &Regex.match?(&1, cmd))
   end
 
   defp start_queue(user) do

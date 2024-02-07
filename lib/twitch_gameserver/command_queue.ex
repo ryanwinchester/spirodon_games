@@ -4,6 +4,8 @@ defmodule TwitchGameServer.CommandQueue do
   """
   use GenServer
 
+  @type message :: TwitchChat.Events.Message.t()
+
   @doc """
   Start the CommandQueue GenServer.
   """
@@ -26,9 +28,9 @@ defmodule TwitchGameServer.CommandQueue do
   @doc """
   Add a command to the queue.
   """
-  @spec add(pid(), String.t(), TwitchChat.Events.Message.t()) :: :ok
-  def add(pid, cmd, msg) do
-    GenServer.cast(pid, {:add, cmd, msg})
+  @spec add(pid(), String.t(), message(), pos_integer()) :: :ok
+  def add(pid, cmd, msg, limit) do
+    GenServer.cast(pid, {:add, cmd, msg, limit})
   end
 
   @doc """
@@ -49,8 +51,13 @@ defmodule TwitchGameServer.CommandQueue do
   end
 
   @impl GenServer
-  def handle_cast({:add, cmd, msg}, queue) do
-    {:noreply, :queue.in({cmd, msg.timestamp}, queue)}
+  def handle_cast({:add, cmd, msg, limit}, queue) do
+    if :queue.len(queue) < limit do
+      item = {cmd, msg.timestamp, role(msg)}
+      {:noreply, :queue.in(item, queue)}
+    else
+      {:noreply, queue}
+    end
   end
 
   @impl GenServer
@@ -59,5 +66,14 @@ defmodule TwitchGameServer.CommandQueue do
       {:empty, queue} -> {:reply, nil, queue}
       {{:value, item}, queue} -> {:reply, item, queue}
     end
+  end
+
+  # ----------------------------------------------------------------------------
+  # Helpers
+  # ----------------------------------------------------------------------------
+
+  # Get the role from the message.
+  defp role(_msg) do
+    nil
   end
 end
