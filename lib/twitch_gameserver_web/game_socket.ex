@@ -8,6 +8,7 @@ defmodule TwitchGameServerWeb.GameSocket do
   require Logger
 
   alias TwitchGameServer.CommandServer
+  alias TwitchGameServer.Game
 
   @ping_interval 30_000
 
@@ -74,6 +75,15 @@ defmodule TwitchGameServerWeb.GameSocket do
           CommandServer.flush_user(username)
           %{success: true}
 
+        %{"new_score" => %{"user" => username, "score" => score}} ->
+          Logger.debug("[GameSocket] updating score for: #{username}")
+          attrs = %{"username" => username, "score" => score}
+
+          case Game.upsert_top_score(username, attrs) do
+            {:ok, score} -> %{success: true, score_id: score.id}
+            {:error, changeset} -> %{success: false, errors: map_errors(changeset.errors)}
+          end
+
         msg ->
           Logger.warning("[GameSocket] unhandled text frame: #{inspect(msg)}")
           %{success: false, error: "unrecognized"}
@@ -119,5 +129,11 @@ defmodule TwitchGameServerWeb.GameSocket do
 
   defp schedule_ping do
     Process.send_after(self(), :send_ping, @ping_interval)
+  end
+
+  defp map_errors(errors) do
+    Map.new(errors, fn {field, {message, _}} ->
+      {field, message}
+    end)
   end
 end

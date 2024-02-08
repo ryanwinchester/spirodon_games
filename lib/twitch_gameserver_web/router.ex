@@ -18,6 +18,12 @@ defmodule TwitchGameServerWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
+    live "/leaderboard", ScoreLive.Index, :index
+    # live "/scores/new", ScoreLive.Index, :new
+    # live "/scores/:id/edit", ScoreLive.Index, :edit
+    # live "/scores/:id", ScoreLive.Show, :show
+    # live "/scores/:id/show/edit", ScoreLive.Show, :edit
   end
 
   # Other scopes may use custom stacks.

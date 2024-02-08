@@ -1,0 +1,8 @@
+<.header>
+  Leaderboard
+</.header>
+
+<.table id="scores" rows={@scores}>
+  <:col :let={score} label="User"><%= score.username %></:col>
+  <:col :let={score} label="Score"><%= score.score %></:col>
+</.table>
