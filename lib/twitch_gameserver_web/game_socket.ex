@@ -9,6 +9,8 @@ defmodule TwitchGameServerWeb.GameSocket do
 
   alias TwitchGameServer.CommandServer
 
+  @ping_interval 30_000
+
   @impl Phoenix.Socket.Transport
   def child_spec(_opts) do
     # We won't spawn any process, so let's ignore the child spec.
@@ -23,6 +25,7 @@ defmodule TwitchGameServerWeb.GameSocket do
   @impl Phoenix.Socket.Transport
   def init(state) do
     TwitchGameServer.subscribe("commands")
+    schedule_ping()
     {:ok, state}
   end
 
@@ -84,20 +87,37 @@ defmodule TwitchGameServerWeb.GameSocket do
     {:push, {:text, Jason.encode!(%{commands: commands})}, state}
   end
 
+  def handle_info(:send_ping, state) do
+    Logger.debug("[GameSocket] sending ping...")
+    schedule_ping()
+    {:push, {:ping, ""}, state}
+  end
+
   def handle_info(msg, state) do
     Logger.warning("[GameSocket] unhandled message: #{inspect(msg)}")
     {:ok, state}
   end
 
   @impl Phoenix.Socket.Transport
-  def handle_control(tuple, state) do
-    Logger.debug("[GameSocket] control frame: #{inspect(tuple)}")
-    {:ok, state}
+  def handle_control({payload, opts}, state) do
+    case opts[:opcode] do
+      :pong ->
+        Logger.debug("[GameSocket] got pong")
+        {:ok, state}
+
+      _opcode ->
+        Logger.warning("[GameSocket] unknown control frame: #{inspect({payload, opts})}")
+        {:ok, state}
+    end
   end
 
   @impl Phoenix.Socket.Transport
   def terminate(reason, _state) do
     Logger.info("[GameSocket] closing socket: #{inspect(reason)}")
     :ok
+  end
+
+  defp schedule_ping do
+    Process.send_after(self(), :send_ping, @ping_interval)
   end
 end
