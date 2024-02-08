@@ -4,7 +4,7 @@ services:
   server:
     build: .
     volumes:
-      - ./db/db_file.db:/etc/twitch_gameserver/db_data/db_file.db
+      - ./db:/etc/twitch_gameserver/db_data
       - /etc/letsencrypt/live/spirodon.games/privkey.pem:/etc/twitch_gameserver/ssl_certs/privkey.pem
       - /etc/letsencrypt/live/spirodon.games/fullchain.pem:/etc/twitch_gameserver/ssl_certs/fullchain.pem
     environment:
