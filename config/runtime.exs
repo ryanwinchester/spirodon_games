@@ -22,6 +22,15 @@ if twitch_user = System.get_env("TWITCH_USER") do
     ]
 end
 
+# Set the log level at runtime?
+case System.get_env("LOG_LEVEL") do
+  "debug" -> config :logger, level: :debug
+  "info" -> config :logger, level: :info
+  "warning" -> config :logger, level: :warning
+  "error" -> config :logger, level: :error
+  _ -> nil
+end
+
 # ## Using releases
 #
 # If you use `mix release`, you need to explicitly enable the server
