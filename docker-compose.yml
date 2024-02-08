@@ -8,6 +8,7 @@ services:
       - /etc/letsencrypt/live/spirodon.games/privkey.pem:/etc/twitch_gameserver/ssl_certs/privkey.pem
       - /etc/letsencrypt/live/spirodon.games/fullchain.pem:/etc/twitch_gameserver/ssl_certs/fullchain.pem
     environment:
+      RELEASE_NAME: ${RELEASE_NAME}
       DATABASE_PATH: ${DATABASE_PATH}
       SECRET_KEY_BASE: ${SECRET_KEY_BASE}
       PORT: ${PORT}
