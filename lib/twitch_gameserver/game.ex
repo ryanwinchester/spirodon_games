@@ -3,15 +3,15 @@ defmodule TwitchGameServer.Game do
   The Game context.
   """
 
-  import Ecto.Query, warn: false
+  import Ecto.Query
+
+  alias TwitchGameServer.Game.Score
   alias TwitchGameServer.Repo
 
-  alias TwitchGameServer.Game.TopScore
-
   # Broadcast successful actions.
-  defp broadcast({:ok, top_score}, event) do
-    TwitchGameServer.broadcast("top_scores", {event, top_score.id})
-    {:ok, top_score}
+  defp broadcast({:ok, %Score{} = score}, event) do
+    TwitchGameServer.broadcast("scores", {event, score.id})
+    {:ok, score}
   end
 
   defp broadcast({:error, _} = error, _event), do: error
@@ -19,127 +19,120 @@ defmodule TwitchGameServer.Game do
   @doc """
   Get the top scores.
   """
-  def leaderboard(top \\ 10) do
-    Repo.all(
-      from ts in TopScore,
-        order_by: [desc: ts.score],
-        limit: ^top
-    )
+  def leaderboard(opts \\ []) do
+    count = Keyword.get(opts, :top, 20)
+    filters = Keyword.get(opts, :filters, [])
+
+    rank_query =
+      from s in Score,
+        select: %{
+          rank: fragment("ROW_NUMBER() OVER (ORDER BY total DESC)"),
+          id: s.id
+        }
+
+    initial_query =
+      from s in Score,
+        join: r in subquery(rank_query),
+        on: r.id == s.id,
+        select: {r.rank, s.username, s.total},
+        order_by: [desc: s.total],
+        limit: ^count
+
+    query =
+      Enum.reduce(filters, initial_query, fn
+        {:username, username}, query ->
+          from s in query, where: like(s.username, ^"%#{username}%")
+      end)
+
+    Repo.all(query)
   end
 
   @doc """
-  Gets a single top_score by keyword list.
+  Increments a score.
 
   ## Examples
 
-      iex> get_top_score_by(user: "foo")
-      %TopScore{}
+      iex> increment_score_by_username(username, 10)
+      {:ok, %Score{}}
 
-      iex> get_top_score_by(user: "notexists")
-      nil
-
-  """
-  def get_top_score_by(by), do: Repo.get_by(TopScore, by)
-
-  @doc """
-  Gets a single top_score.
-
-  Raises `Ecto.NoResultsError` if the TopScore does not exist.
-
-  ## Examples
-
-      iex> get_top_score!(123)
-      %TopScore{}
-
-      iex> get_top_score!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_top_score!(id), do: Repo.get!(TopScore, id)
-
-  @doc """
-  Creates a top_score.
-
-  ## Examples
-
-      iex> create_top_score(%{field: value})
-      {:ok, %TopScore{}}
-
-      iex> create_top_score(%{field: bad_value})
+      iex> increment_score_by_username(username, -1000)
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_top_score(attrs \\ %{}) do
-    %TopScore{}
-    |> TopScore.changeset(attrs)
-    |> Repo.insert()
-    |> broadcast(:top_score_added)
-  end
-
-  @doc """
-  Updates a top_score.
-
-  ## Examples
-
-      iex> update_top_score(top_score, %{field: new_value})
-      {:ok, %TopScore{}}
-
-      iex> update_top_score(top_score, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_top_score(%TopScore{} = top_score, attrs) do
-    top_score
-    |> TopScore.changeset(attrs)
-    |> Repo.update()
-    |> broadcast(:top_score_added)
-  end
-
-  @doc """
-  Upserts a top_score for a user.
-
-  ## Examples
-
-      iex> upsert_top_score(username, %{field: new_value})
-      {:ok, %TopScore{}}
-
-      iex> upsert_top_score(username, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def upsert_top_score(username, attrs) do
-    case get_top_score_by(username: username) do
-      nil -> create_top_score(attrs)
-      top_score -> update_top_score(top_score, attrs)
+  def increment_score_by_username(username, amount)
+      when is_binary(username) and is_integer(amount) do
+    case get_score_by(username: username) do
+      nil -> create_score(%{username: username, total: amount})
+      score -> update_score(score, %{total: score.total + amount})
     end
   end
 
   @doc """
-  Deletes a top_score.
+  Gets a single score by keyword list.
 
   ## Examples
 
-      iex> delete_top_score(top_score)
-      {:ok, %TopScore{}}
+      iex> get_score_by(user: "foo")
+      %Score{}
 
-      iex> delete_top_score(top_score)
+      iex> get_score_by(user: "notexists")
+      nil
+
+  """
+  def get_score_by(by), do: Repo.get_by(Score, by)
+
+  @doc """
+  Creates a score.
+
+  ## Examples
+
+      iex> create_score(%{field: value})
+      {:ok, %Score{}}
+
+      iex> create_score(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_top_score(%TopScore{} = top_score) do
-    Repo.delete(top_score)
+  def create_score(attrs \\ %{}) do
+    %Score{}
+    |> Score.changeset(attrs)
+    |> Repo.insert()
+    |> broadcast(:score_updated)
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking top_score changes.
+  Updates a score.
 
   ## Examples
 
-      iex> change_top_score(top_score)
-      %Ecto.Changeset{data: %TopScore{}}
+      iex> update_score(score, %{field: new_value})
+      {:ok, %Score{}}
+
+      iex> update_score(score, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
 
   """
-  def change_top_score(%TopScore{} = top_score, attrs \\ %{}) do
-    TopScore.changeset(top_score, attrs)
+  def update_score(%Score{} = score, attrs) do
+    score
+    |> Score.changeset(attrs)
+    |> Repo.update()
+    |> broadcast(:score_updated)
+  end
+
+  @doc """
+  Deletes a score.
+
+  ## Examples
+
+      iex> delete_score(score)
+      {:ok, %Score{}}
+
+      iex> delete_score(score)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_score(%Score{} = score) do
+    Repo.delete(score)
+    |> broadcast(:score_updated)
   end
 end

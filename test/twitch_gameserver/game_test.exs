@@ -3,59 +3,62 @@ defmodule TwitchGameServer.GameTest do
 
   alias TwitchGameServer.Game
 
-  describe "top_scores" do
-    alias TwitchGameServer.Game.TopScore
+  describe "scores" do
+    alias TwitchGameServer.Game.Score
 
     import TwitchGameServer.GameFixtures
 
-    @invalid_attrs %{username: nil, score: nil}
+    @invalid_attrs %{username: nil, total: nil}
 
-    test "list_top_scores/0 returns all top_scores" do
-      top_score = top_score_fixture()
-      assert Game.leaderboard() == [top_score]
+    test "list_scores/0 returns all scores" do
+      score = score_fixture()
+      assert Game.leaderboard() == [{1, score.username, score.total}]
     end
 
-    test "get_top_score_by/1 returns the top_score with given username" do
-      top_score = top_score_fixture()
-      assert Game.get_top_score_by(username: top_score.username) == top_score
+    test "increment_score_by_username/1 adds new score if none exists" do
+      assert {:ok, %Score{username: "some user", total: 2}} =
+               Game.increment_score_by_username("some user", 2)
     end
 
-    test "create_top_score/1 with valid data creates a top_score" do
-      valid_attrs = %{username: "some user", score: 42}
+    test "increment_score_by_username/1 increments a score" do
+      score = score_fixture()
+      expected = score.total + 2
 
-      assert {:ok, %TopScore{} = top_score} = Game.create_top_score(valid_attrs)
-      assert top_score.username == "some user"
-      assert top_score.score == 42
+      assert {:ok, %Score{username: "some user", total: ^expected}} =
+               Game.increment_score_by_username(score.username, 2)
     end
 
-    test "create_top_score/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Game.create_top_score(@invalid_attrs)
+    test "create_score/1 with valid data creates a score" do
+      valid_attrs = %{username: "some user", total: 42}
+
+      assert {:ok, %Score{} = score} = Game.create_score(valid_attrs)
+      assert score.username == "some user"
+      assert score.total == 42
     end
 
-    test "update_top_score/2 with valid data updates the top_score" do
-      top_score = top_score_fixture()
-      update_attrs = %{username: "some updated user", score: 43}
-
-      assert {:ok, %TopScore{} = top_score} = Game.update_top_score(top_score, update_attrs)
-      assert top_score.username == "some updated user"
-      assert top_score.score == 43
+    test "create_score/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Game.create_score(@invalid_attrs)
     end
 
-    test "update_top_score/2 with invalid data returns error changeset" do
-      top_score = top_score_fixture()
-      assert {:error, %Ecto.Changeset{}} = Game.update_top_score(top_score, @invalid_attrs)
-      assert top_score == Game.get_top_score!(top_score.id)
+    test "update_score/2 with valid data updates the score" do
+      score = score_fixture()
+      update_attrs = %{username: "some updated user", total: 43}
+
+      assert {:ok, %Score{} = score} = Game.update_score(score, update_attrs)
+      assert score.username == "some updated user"
+      assert score.total == 43
     end
 
-    test "delete_top_score/1 deletes the top_score" do
-      top_score = top_score_fixture()
-      assert {:ok, %TopScore{}} = Game.delete_top_score(top_score)
-      assert_raise Ecto.NoResultsError, fn -> Game.get_top_score!(top_score.id) end
+    test "update_score/2 with invalid data returns error changeset" do
+      score = score_fixture()
+      assert {:error, %Ecto.Changeset{}} = Game.update_score(score, @invalid_attrs)
+      assert score == Game.get_score_by(id: score.id)
     end
 
-    test "change_top_score/1 returns a top_score changeset" do
-      top_score = top_score_fixture()
-      assert %Ecto.Changeset{} = Game.change_top_score(top_score)
+    test "delete_score/1 deletes the score" do
+      score = score_fixture()
+      assert {:ok, %Score{}} = Game.delete_score(score)
+      assert Game.get_score_by(id: score.id) == nil
     end
   end
 end

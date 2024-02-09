@@ -8,10 +8,15 @@ defmodule TwitchGameServerWeb.ScoreLive.Index do
   @impl true
   def mount(_params, _session, socket) do
     if connected?(socket) do
-      TwitchGameServer.subscribe("top_scores")
+      TwitchGameServer.subscribe("scores")
     end
 
-    {:ok, assign(socket, :page_title, "Listing Scores")}
+    socket =
+      socket
+      |> assign(:page_title, "Leaderboard")
+      |> assign(:filter_form, to_form(%{"user" => nil}))
+
+    {:ok, socket}
   end
 
   @impl true
@@ -22,13 +27,25 @@ defmodule TwitchGameServerWeb.ScoreLive.Index do
     socket =
       socket
       |> assign(:count, top)
-      |> assign(:scores, Game.leaderboard(top))
+      |> assign(:scores, Game.leaderboard(top: top))
 
     {:noreply, socket}
   end
 
   @impl true
-  def handle_info({:top_score_added, _score_id}, socket) do
-    {:noreply, assign(socket, :scores, Game.leaderboard(socket.assigns.count))}
+  def handle_event("filter", %{"user" => search} = params, socket) do
+    scores = Game.leaderboard(top: socket.assigns.count, filters: [username: search])
+
+    socket =
+      socket
+      |> assign(:filter_form, to_form(params))
+      |> assign(:scores, scores)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:score_updated, _score_id}, socket) do
+    {:noreply, assign(socket, :scores, Game.leaderboard(top: socket.assigns.count))}
   end
 end

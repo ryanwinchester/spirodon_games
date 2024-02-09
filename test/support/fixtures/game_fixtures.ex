@@ -7,15 +7,15 @@ defmodule TwitchGameServer.GameFixtures do
   @doc """
   Generate a top score.
   """
-  def top_score_fixture(attrs \\ %{}) do
-    {:ok, top_score} =
+  def score_fixture(attrs \\ %{}) do
+    {:ok, score} =
       attrs
       |> Enum.into(%{
-        score: 42,
+        total: 42,
         username: "some user"
       })
-      |> TwitchGameServer.Game.create_top_score()
+      |> TwitchGameServer.Game.create_score()
 
-    top_score
+    score
   end
 end

@@ -1,8 +1,20 @@
 <.header>
-  Leaderboard
+  <div class="grid sm:grid-cols-2 content-center">
+    <div>Leaderboard</div>
+    <.form for={@filter_form} phx-change="filter" class="w-full sm:w-3/4 justify-self-end">
+      <label for="search" class="sr-only">Filter by username</label>
+      <.input
+        class="!mt-0"
+        type="search"
+        field={@filter_form[:user]}
+        placeholder="filter players"
+      />
+    </.form>
+  </div>
 </.header>
 
-<.table id="scores" rows={@scores}>
-  <:col :let={score} label="User"><%= score.username %></:col>
-  <:col :let={score} label="Score"><%= score.score %></:col>
+<.table id="scores" rows={@scores} class="mt-6">
+  <:col :let={{rank, _username, _total}} label="Rank"><%= rank %></:col>
+  <:col :let={{_rank, username, _total}} label="User"><%= username %></:col>
+  <:col :let={{_rank, _username, total}} label="Score"><%= total %></:col>
 </.table>

@@ -6,8 +6,9 @@ import Config
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
 config :twitch_gameserver, TwitchGameServer.Repo,
-  database: Path.expand("../twitch_gameserver_test.db", Path.dirname(__ENV__.file)),
-  pool_size: 5,
+  database: "twitch_gameserver_test#{System.get_env("MIX_TEST_PARTITION")}",
+  password: "postgres",
+  hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
 
 # We don't run a server during test. If one is required,

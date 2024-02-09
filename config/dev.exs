@@ -2,10 +2,13 @@ import Config
 
 # Configure your database
 config :twitch_gameserver, TwitchGameServer.Repo,
-  database: Path.expand("../twitch_gameserver_dev.db", Path.dirname(__ENV__.file)),
-  pool_size: 5,
-  stacktrace: true,
-  show_sensitive_data_on_connection_error: true
+  username: "postgres",
+  password: "postgres",
+  hostname: "localhost",
+  database: "twitch_gameserver_dev",
+  pool_size: 10,
+  show_sensitive_data_on_connection_error: true,
+  stacktrace: true
 
 # For development, we disable any cache and enable
 # debugging and code reloading.
