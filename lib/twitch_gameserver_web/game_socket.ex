@@ -77,6 +77,10 @@ defmodule TwitchGameServerWeb.GameSocket do
     :ok
   end
 
+  # ----------------------------------------------------------------------------
+  # Helpers
+  # ----------------------------------------------------------------------------
+
   defp schedule_ping do
     Process.send_after(self(), :send_ping, @ping_interval)
   end

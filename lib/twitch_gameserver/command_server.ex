@@ -118,13 +118,13 @@ defmodule TwitchGameServer.CommandServer do
   def handle_cast({:add, cmd, msg}, state) do
     if enqueue_command?(cmd, state) do
       queues =
-        Map.put_new_lazy(state.queues, msg.user_login, fn ->
-          start_queue(msg.user_login)
+        Map.put_new_lazy(state.queues, msg.display_name, fn ->
+          start_queue(msg.display_name)
         end)
 
       Task.start(fn ->
         queues
-        |> Map.fetch!(msg.user_login)
+        |> Map.fetch!(msg.display_name)
         |> CommandQueue.add(cmd, msg, state.queue_limit)
       end)
 

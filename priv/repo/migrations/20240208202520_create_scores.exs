@@ -4,7 +4,7 @@ defmodule TwitchGameServer.Repo.Migrations.CreateScores do
   def change do
     create table(:scores, primary_key: false) do
       add :id, :binary_id, primary_key: true
-      add :username, :string, null: false
+      add :username, :citext, null: false
       add :total, :integer, null: false
 
       timestamps(type: :utc_datetime)
