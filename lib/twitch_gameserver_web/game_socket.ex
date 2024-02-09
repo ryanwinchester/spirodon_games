@@ -32,12 +32,12 @@ defmodule TwitchGameServerWeb.GameSocket do
 
   @impl Phoenix.Socket.Transport
   def handle_in({text, _opts}, state) do
-    errors =
+    {results, errors} =
       text
       |> Jason.decode!()
-      |> Enum.reduce([], &handle_data/2)
+      |> Enum.reduce({_results = %{}, _errors = []}, &handle_data/2)
 
-    result = Jason.encode!(%{errors: errors})
+    result = Jason.encode!(%{data: results, errors: errors})
 
     {:reply, :ok, {:text, result}, state}
   end
@@ -91,66 +91,84 @@ defmodule TwitchGameServerWeb.GameSocket do
     end)
   end
 
-  defp handle_data({"set_rate", rate_ms}, errors) do
+  defp handle_data({"set_rate", rate_ms}, results) do
     Logger.debug("[GameSocket] setting rate to: #{rate_ms}ms")
     CommandServer.set_rate(rate_ms)
-    errors
+    results
   end
 
-  defp handle_data({"set_queue_limit", limit}, errors) do
+  defp handle_data({"set_queue_limit", limit}, results) do
     Logger.debug("[GameSocket] set queue limit: #{limit}")
     CommandServer.set_queue_limit(limit)
-    errors
+    results
   end
 
-  defp handle_data({"set_filters", %{"commands" => commands, "matches" => matches}}, errors) do
+  defp handle_data({"set_filters", %{"commands" => commands, "matches" => matches}}, results) do
     Logger.debug("[GameSocket] filter: #{inspect(commands)} and #{inspect(matches)}")
     matches = Enum.map(matches, &Regex.compile!/1)
     CommandServer.set_filters(commands: commands, matches: matches)
-    errors
+    results
   end
 
-  defp handle_data({"add_command_filter", command}, errors) do
+  defp handle_data({"add_command_filter", command}, results) do
     Logger.debug("[GameSocket] add command filter: #{command}")
     CommandServer.add_command_filter(command)
-    errors
+    results
   end
 
-  defp handle_data({"remove_command_filter", command}, errors) do
+  defp handle_data({"remove_command_filter", command}, results) do
     Logger.debug("[GameSocket] remove command filter: #{command}")
     CommandServer.remove_command_filter(command)
-    errors
+    results
   end
 
-  defp handle_data({"add_match_filter", match}, errors) do
+  defp handle_data({"add_match_filter", match}, results) do
     Logger.debug("[GameSocket] add match filter: #{match}")
     Regex.compile!(match) |> CommandServer.add_match_filter()
-    errors
+    results
   end
 
-  defp handle_data({"remove_match_filter", match}, errors) do
+  defp handle_data({"remove_match_filter", match}, results) do
     Logger.debug("[GameSocket] remove match filter: #{match}")
     Regex.compile!(match) |> CommandServer.remove_match_filter()
-    errors
+    results
   end
 
-  defp handle_data({"flush_user", username}, errors) do
+  defp handle_data({"flush_user", username}, results) do
     Logger.debug("[GameSocket] flush user queue: #{username}")
     CommandServer.flush_user(username)
-    errors
+    results
   end
 
-  defp handle_data({"increment_score", %{"user" => username, "inc" => inc}}, errors) do
+  defp handle_data({"get_leaderboard", count}, {results, errors}) do
+    Logger.debug("[GameSocket] getting leaderboard")
+
+    leaderboard =
+      Game.leaderboard(top: count)
+      |> Enum.map(fn {rank, username, score} ->
+        %{rank: rank, user: username, total: score}
+      end)
+
+    {Map.put(results, "leaderboard", leaderboard), errors}
+  end
+
+  defp handle_data({"increment_score", %{"user" => username, "inc" => inc}}, {results, errors}) do
     Logger.debug("[GameSocket] incrementing score for: #{username}")
 
     case Game.increment_score_by_username(username, inc) do
-      {:ok, _score} -> errors
-      {:error, changeset} -> [%{"increment_score" => map_errors(changeset.errors)} | errors]
+      {:ok, score} ->
+        result = %{"user" => score.username, "total" => score.total}
+        {Map.put(results, "score", result), errors}
+
+      {:error, changeset} ->
+        error = %{"increment_score" => map_errors(changeset.errors)}
+        {results, [error | errors]}
     end
   end
 
-  defp handle_data(msg, errors) do
+  defp handle_data(msg, {results, errors}) do
     Logger.warning("[GameSocket] unhandled text frame: #{inspect(msg)}")
-    [%{"unrecognized" => inspect(msg)} | errors]
+    error = %{"unrecognized" => inspect(msg)}
+    {results, [error | errors]}
   end
 end

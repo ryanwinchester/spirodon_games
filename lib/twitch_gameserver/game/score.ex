@@ -17,6 +17,5 @@ defmodule TwitchGameServer.Game.Score do
     score
     |> cast(attrs, [:username, :total])
     |> validate_required([:username, :total])
-    |> validate_number(:total, greater_than_or_equal_to: 0)
   end
 end

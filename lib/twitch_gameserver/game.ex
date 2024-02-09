@@ -40,6 +40,9 @@ defmodule TwitchGameServer.Game do
 
     query =
       Enum.reduce(filters, initial_query, fn
+        {:username, ""}, query ->
+          query
+
         {:username, username}, query ->
           from s in query, where: like(s.username, ^"%#{username}%")
       end)
