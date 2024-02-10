@@ -13,7 +13,11 @@ defmodule TwitchGameServer.CommandServer do
   Starts the command server for orchestrating user command queues.
   """
   def start_link(opts) do
-    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+    if opts[:start?] == false do
+      :ignore
+    else
+      GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+    end
   end
 
   def add(cmd, msg) do
@@ -34,6 +38,10 @@ defmodule TwitchGameServer.CommandServer do
 
   def set_filters(filters) do
     GenServer.cast(__MODULE__, {:set_filters, filters})
+  end
+
+  def get_filters do
+    GenServer.call(__MODULE__, :get_filters)
   end
 
   def add_command_filter(command_filter) do
@@ -72,6 +80,11 @@ defmodule TwitchGameServer.CommandServer do
   def handle_continue(:schedule, state) do
     schedule_next(state)
     {:noreply, state}
+  end
+
+  @impl GenServer
+  def handle_call(:get_filters, _from, state) do
+    {:reply, state.filters, state}
   end
 
   @impl GenServer
@@ -114,7 +127,6 @@ defmodule TwitchGameServer.CommandServer do
     {:noreply, %{state | queues: queues}}
   end
 
-  @impl GenServer
   def handle_cast({:add, cmd, msg}, state) do
     if enqueue_command?(cmd, state) do
       queues =

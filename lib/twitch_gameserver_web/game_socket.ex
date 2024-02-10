@@ -37,9 +37,9 @@ defmodule TwitchGameServerWeb.GameSocket do
       |> Jason.decode!()
       |> Enum.reduce({_results = %{}, _errors = []}, &handle_data/2)
 
-    result = Jason.encode!(%{data: results, errors: errors})
+    resp = Jason.encode!(%{data: results, errors: errors})
 
-    {:reply, :ok, {:text, result}, state}
+    {:reply, :ok, {:text, resp}, state}
   end
 
   @impl Phoenix.Socket.Transport
@@ -91,53 +91,63 @@ defmodule TwitchGameServerWeb.GameSocket do
     end)
   end
 
-  defp handle_data({"set_rate", rate_ms}, results) do
+  defp handle_data({"set_rate", rate_ms}, {results, errors}) do
     Logger.debug("[GameSocket] setting rate to: #{rate_ms}ms")
     CommandServer.set_rate(rate_ms)
-    results
+    results = Map.put(results, "rate", rate_ms)
+    {results, errors}
   end
 
-  defp handle_data({"set_queue_limit", limit}, results) do
+  defp handle_data({"set_queue_limit", limit}, {results, errors}) do
     Logger.debug("[GameSocket] set queue limit: #{limit}")
     CommandServer.set_queue_limit(limit)
-    results
+    results = Map.put(results, "queue_limit", limit)
+    {results, errors}
   end
 
-  defp handle_data({"set_filters", %{"commands" => commands, "matches" => matches}}, results) do
+  defp handle_data(
+         {"set_filters", %{"commands" => commands, "matches" => matches}},
+         {results, errors}
+       ) do
     Logger.debug("[GameSocket] filter: #{inspect(commands)} and #{inspect(matches)}")
     matches = Enum.map(matches, &Regex.compile!/1)
     CommandServer.set_filters(commands: commands, matches: matches)
-    results
+    results = Map.put(results, "filters", parse_filters(%{commands: commands, matches: matches}))
+    {results, errors}
   end
 
-  defp handle_data({"add_command_filter", command}, results) do
+  defp handle_data({"add_command_filter", command}, {results, errors}) do
     Logger.debug("[GameSocket] add command filter: #{command}")
     CommandServer.add_command_filter(command)
-    results
+    results = Map.put(results, "filters", CommandServer.get_filters() |> parse_filters())
+    {results, errors}
   end
 
-  defp handle_data({"remove_command_filter", command}, results) do
+  defp handle_data({"remove_command_filter", command}, {results, errors}) do
     Logger.debug("[GameSocket] remove command filter: #{command}")
     CommandServer.remove_command_filter(command)
-    results
+    results = Map.put(results, "filters", CommandServer.get_filters() |> parse_filters())
+    {results, errors}
   end
 
-  defp handle_data({"add_match_filter", match}, results) do
+  defp handle_data({"add_match_filter", match}, {results, errors}) do
     Logger.debug("[GameSocket] add match filter: #{match}")
     Regex.compile!(match) |> CommandServer.add_match_filter()
-    results
+    results = Map.put(results, "filters", CommandServer.get_filters() |> parse_filters())
+    {results, errors}
   end
 
-  defp handle_data({"remove_match_filter", match}, results) do
+  defp handle_data({"remove_match_filter", match}, {results, errors}) do
     Logger.debug("[GameSocket] remove match filter: #{match}")
     Regex.compile!(match) |> CommandServer.remove_match_filter()
-    results
+    results = Map.put(results, "filters", CommandServer.get_filters() |> parse_filters())
+    {results, errors}
   end
 
-  defp handle_data({"flush_user", username}, results) do
+  defp handle_data({"flush_user", username}, {results, errors}) do
     Logger.debug("[GameSocket] flush user queue: #{username}")
     CommandServer.flush_user(username)
-    results
+    {results, errors}
   end
 
   defp handle_data({"get_leaderboard", count}, {results, errors}) do
@@ -170,5 +180,10 @@ defmodule TwitchGameServerWeb.GameSocket do
     Logger.warning("[GameSocket] unhandled text frame: #{inspect(msg)}")
     error = %{"unrecognized" => inspect(msg)}
     {results, [error | errors]}
+  end
+
+  # Regex can't be turned into JSON, so we need to handle that for the `:matches`.
+  defp parse_filters(filters) do
+    Map.update(filters, :matches, [], &Enum.map(&1, fn regex -> Regex.source(regex) end))
   end
 end

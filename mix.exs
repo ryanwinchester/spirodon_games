@@ -49,6 +49,9 @@ defmodule TwitchGameServer.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, ">= 0.0.0"},
       {:twitch_chat, github: "hellostream/twitch_chat", branch: "main"}
+
+      # Testing
+      # {:websockex, "~> 0.4.3", only: [:test]}
     ]
   end
 

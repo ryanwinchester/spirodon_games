@@ -7,19 +7,21 @@ import Config
 # any compile-time configuration in here, as it won't be applied.
 # The block below contains prod specific runtime configuration.
 
-if twitch_user = System.get_env("TWITCH_USER") do
-  twitch_channels = System.fetch_env!("TWITCH_CHANNELS") |> String.split(~r/,(\s*)?/)
-  twitch_mod_channels = System.fetch_env!("TWITCH_MOD_CHANNELS") |> String.split(~r/,(\s*)?/)
-  twitch_chat_token = System.fetch_env!("TWITCH_OAUTH_TOKEN")
+if config_env() != :test do
+  if twitch_user = System.get_env("TWITCH_USER") do
+    twitch_channels = System.fetch_env!("TWITCH_CHANNELS") |> String.split(~r/,(\s*)?/)
+    twitch_mod_channels = System.fetch_env!("TWITCH_MOD_CHANNELS") |> String.split(~r/,(\s*)?/)
+    twitch_chat_token = System.fetch_env!("TWITCH_OAUTH_TOKEN")
 
-  config :twitch_gameserver,
-    bot: [
-      bot: TwitchGameServer.TwitchChat,
-      user: twitch_user,
-      pass: twitch_chat_token,
-      channels: twitch_channels,
-      mod_channels: twitch_mod_channels
-    ]
+    config :twitch_gameserver,
+      bot: [
+        bot: TwitchGameServer.TwitchChat,
+        user: twitch_user,
+        pass: twitch_chat_token,
+        channels: twitch_channels,
+        mod_channels: twitch_mod_channels
+      ]
+  end
 end
 
 # Set the log level at runtime?

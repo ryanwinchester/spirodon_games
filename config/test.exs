@@ -16,7 +16,7 @@ config :twitch_gameserver, TwitchGameServer.Repo,
 config :twitch_gameserver, TwitchGameServerWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   secret_key_base: "0nHoK8mjysvrAp+k/NBa64eCoQGvbAxogI0aAczIe9rY8PAnEOfkQ8SjqyC8w9Jn",
-  server: false
+  server: true
 
 # Print only warnings and errors during test
 config :logger, level: :warning
