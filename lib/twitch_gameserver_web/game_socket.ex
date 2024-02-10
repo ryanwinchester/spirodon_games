@@ -44,7 +44,7 @@ defmodule TwitchGameServerWeb.GameSocket do
 
   @impl Phoenix.Socket.Transport
   def handle_info({:commands, commands}, state) do
-    {:push, {:text, Jason.encode!(%{commands: commands})}, state}
+    {:push, {:text, Jason.encode!(%{data: %{commands: commands}})}, state}
   end
 
   def handle_info(:send_ping, state) do
