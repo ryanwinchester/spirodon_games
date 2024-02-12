@@ -38,7 +38,7 @@ defmodule TwitchGameServer.Game do
         order_by: [desc: s.total],
         limit: ^count
 
-    query =
+    filtered_query =
       Enum.reduce(filters, initial_query, fn
         {:username, ""}, query ->
           query
@@ -47,7 +47,7 @@ defmodule TwitchGameServer.Game do
           from s in query, where: like(s.username, ^"%#{username}%")
       end)
 
-    Repo.all(query)
+    Repo.all(filtered_query)
   end
 
   @doc """
