@@ -20,6 +20,7 @@ defmodule TwitchGameServerWeb.GameSocket do
 
   @impl Phoenix.Socket.Transport
   def connect(state) do
+    Logger.info("[GameSocket] socket connect")
     {:ok, state}
   end
 
