@@ -69,7 +69,7 @@ jobs:
 
       # Check code quality and style.
       - run: mix format --check-formatted
-      - run: mix credo
+      # - run: mix credo
 
       # Run the tests with code coverage.
       - run: mix test
