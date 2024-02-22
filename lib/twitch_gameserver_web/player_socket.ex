@@ -40,14 +40,14 @@ defmodule TwitchGameServerWeb.PlayerSocket do
   def handle_in({text, _opts}, state) do
     {results, errors, new_state} =
       case Jason.decode!(text) do
-        %{"cmd" => cmd, "ts" => ts} ->
+        %{"cmd" => cmd} ->
           Logger.debug("[PlayerSocket] <#{state.user.name}> #{cmd}")
 
           CommandServer.add(cmd, %{
             display_name: state.user.name,
             user_login: state.user.login,
             channel: state.channel,
-            timestamp: DateTime.from_unix!(ts, :second)
+            timestamp: DateTime.utc_now()
           })
 
           {%{"cmd" => cmd}, [], state}
