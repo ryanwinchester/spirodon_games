@@ -23,34 +23,38 @@ defmodule TwitchGameServerWeb.PlayerSocket do
   end
 
   @impl Phoenix.Socket.Transport
-  def init(state) do
+  def init(%{params: %{"user" => username}} = state) do
+    TwitchGameServer.subscribe("messages")
+    TwitchGameServer.subscribe("messages:#{username}")
     schedule_ping()
     {:ok, state}
   end
 
   @impl Phoenix.Socket.Transport
   def handle_in({text, _opts}, state) do
-    resp =
+    {results, errors} =
       case Jason.decode!(text) do
-        %{"command" => cmd, "user" => user, "ts" => timestamp} = msg ->
-          %{"display_name" => display_name, "user_login" => login, "channel" => channel} = user
+        %{"channel" => channel, "cmd" => cmd, "ts" => ts, "user" => user} ->
+          %{"display_name" => display_name, "user_login" => login} = user
           Logger.debug("[PlayerSocket] <#{display_name}> #{cmd}")
 
           CommandServer.add(cmd, %{
             display_name: display_name,
             user_login: login,
             channel: channel,
-            timestamp: DateTime.from_unix!(timestamp, :second)
+            timestamp: DateTime.from_unix!(ts, :second)
           })
 
-          msg
+          {%{"cmd" => cmd}, []}
 
         unrecognized ->
           Logger.warning("[PlayerSocket] unhandled text frame: #{inspect(unrecognized)}")
-          %{error: "unrecognized"}
+          {nil, ["unrecognized text frame"]}
       end
 
-    {:reply, :ok, {:text, Jason.encode!(resp)}, state}
+    resp = Jason.encode!(%{data: results, errors: errors})
+
+    {:reply, :ok, {:text, resp}, state}
   end
 
   @impl Phoenix.Socket.Transport
@@ -58,6 +62,11 @@ defmodule TwitchGameServerWeb.PlayerSocket do
     Logger.debug("[PlayerSocket] sending ping...")
     schedule_ping()
     {:push, {:ping, ""}, state}
+  end
+
+  def handle_info({:server, msg}, state) do
+    Logger.debug("[PlayerSocket] sending message...")
+    {:push, {:text, Jason.encode!(msg)}, state}
   end
 
   def handle_info(msg, state) do

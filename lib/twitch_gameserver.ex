@@ -10,4 +10,8 @@ defmodule TwitchGameServer do
   def subscribe(topic) do
     Phoenix.PubSub.subscribe(TwitchGameServer.PubSub, topic)
   end
+
+  def unsubscribe(topic) do
+    Phoenix.PubSub.unsubscribe(TwitchGameServer.PubSub, topic)
+  end
 end

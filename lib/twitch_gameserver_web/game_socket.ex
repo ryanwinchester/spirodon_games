@@ -177,6 +177,18 @@ defmodule TwitchGameServerWeb.GameSocket do
     end
   end
 
+  defp handle_data({"broadcast", %{"payload" => payload}}, {results, errors}) do
+    Logger.debug("[GameSocket] broadcasting message to all users")
+    TwitchGameServer.broadcast("messages", {:server, payload})
+    {results, errors}
+  end
+
+  defp handle_data({"send", %{"user" => username, "payload" => payload}}, {results, errors}) do
+    Logger.debug("[GameSocket] sending message to user: #{username}")
+    TwitchGameServer.broadcast("messages:#{username}", {:server, payload})
+    {results, errors}
+  end
+
   defp handle_data(msg, {results, errors}) do
     Logger.warning("[GameSocket] unhandled text frame: #{inspect(msg)}")
     error = %{"unrecognized" => inspect(msg)}
