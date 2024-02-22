@@ -1,4 +1,6 @@
-# TwitchGameServer
+# Spirodon.Games
+
+[![CI](https://github.com/ryanwinchester/spirodon_games/actions/workflows/ci.yml/badge.svg)](https://github.com/ryanwinchester/spirodon_games/actions/workflows/ci.yml)
 
 To start your Phoenix server:
 

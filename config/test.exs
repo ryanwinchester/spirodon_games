@@ -7,6 +7,7 @@ import Config
 # Run `mix help test` for more information.
 config :twitch_gameserver, TwitchGameServer.Repo,
   database: "twitch_gameserver_test#{System.get_env("MIX_TEST_PARTITION")}",
+  username: "postgres",
   password: "postgres",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
