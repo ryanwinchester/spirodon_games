@@ -24,6 +24,8 @@ defmodule TwitchGameServerWeb.Router do
     # live "/scores/:id/edit", ScoreLive.Index, :edit
     # live "/scores/:id", ScoreLive.Show, :show
     # live "/scores/:id/show/edit", ScoreLive.Show, :edit
+
+    resources "/games", GameController
   end
 
   # Other scopes may use custom stacks.
