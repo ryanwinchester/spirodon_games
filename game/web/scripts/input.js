@@ -7,7 +7,7 @@
 // You want to have a ***separate*** set of inputs for editor mode vs normal/game mode
 var INPUT = {
     MODE: 0,
-    MODES: ['Game', 'Editor', 'Twitch', 'Multiplayer'],
+    MODES: ['Game', 'Editor', 'Twitch'],
     startListening: function() {
         window.addEventListener('keyup', function (evt) {
             console.log(evt);
@@ -36,10 +36,6 @@ var INPUT = {
                     // Twitch Mode
                     INPUT.MODE = 2;
                     EDITOR.updateInputMode();
-                } else if (evt.code === 'Digit3') {
-                    // Multiplayer
-                    INPUT.MODE = 3;
-                    EDITOR.updateInputMode();
                 }
             }
 
@@ -49,8 +45,6 @@ var INPUT = {
                 EDITOR.handleInput(evt);
             } else if (INPUT.MODE === 2) {
                 TWITCH.handleInput(evt);
-            } else if (INPUT.MODE === 3) {
-                MULTIPLAYER.handleInput(evt);
             }
         });
     },

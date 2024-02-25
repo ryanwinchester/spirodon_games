@@ -78,7 +78,14 @@ var UI = {
     sendDone() {
         // if (!spawned) { return; }
         player_ryans_backend.send(JSON.stringify({
-            "cmd": "done",
+            "command": "done",
+            // "ts": Date.now(),
+            "ts": 1708315762,
+            "user": {
+                "display_name": current_user.display_name,
+                "user_login": current_user.login,
+                "channel": "spirodonfl"
+            }
         }));
         // spawned = false;
         // TODO: UI update controls
@@ -86,31 +93,67 @@ var UI = {
     sendDown() {
         // if (!spawned) { return; }
         player_ryans_backend.send(JSON.stringify({
-            "cmd": "down",
+            "command": "down",
+            // TODO: Ryan needs to fix the fact that any other timestamp fails
+            // "ts": Date.now(),
+            "ts": 1708315762,
+            "user": {
+                "display_name": current_user.display_name,
+                "user_login": current_user.login,
+                "channel": "spirodonfl"
+            }
         }));
     },
     sendUp() {
         // if (!spawned) { return; }
         player_ryans_backend.send(JSON.stringify({
-            "cmd": "up",
+            "command": "up",
+            // "ts": Date.now(),
+            "ts": 1708315762,
+            "user": {
+                "display_name": current_user.display_name,
+                "user_login": current_user.login,
+                "channel": "spirodonfl"
+            }
         }));
     },
     sendLeft() {
         // if (!spawned) { return; }
         player_ryans_backend.send(JSON.stringify({
-            "cmd": "left",
+            "command": "left",
+            // "ts": Date.now(),
+            "ts": 1708315762,
+            "user": {
+                "display_name": current_user.display_name,
+                "user_login": current_user.login,
+                "channel": "spirodonfl"
+            }
         }));
     },
     sendRight() {
         // if (!spawned) { return; }
         player_ryans_backend.send(JSON.stringify({
-            "cmd": "right",
+            "command": "right",
+            // "ts": Date.now(),
+            "ts": 1708315762,
+            "user": {
+                "display_name": current_user.display_name,
+                "user_login": current_user.login,
+                "channel": "spirodonfl"
+            }
         }));
     },
     sendSpawn() {
         // if (spawned) { return; }
         player_ryans_backend.send(JSON.stringify({
-            "cmd": "spawn",
+            "command": "spawn",
+            // "ts": Date.now(),
+            "ts": 1708315762,
+            "user": {
+                "display_name": current_user.display_name,
+                "user_login": current_user.login,
+                "channel": "spirodonfl"
+            }
         }));
         // TODO: Ask ryan if we can send messages *back to the player* so we know if they spawned and whatnot
         // spawned = true;
@@ -119,7 +162,14 @@ var UI = {
     sendAttack() {
         // if (!spawned) { return; }
         player_ryans_backend.send(JSON.stringify({
-            "cmd": "attack",
+            "command": "attack",
+            // "ts": Date.now(),
+            "ts": 1708315762,
+            "user": {
+                "display_name": current_user.display_name,
+                "user_login": current_user.login,
+                "channel": "spirodonfl"
+            }
         }));
     },
     doSpawn: function () {
@@ -129,13 +179,7 @@ var UI = {
 };
 
 function connectToRyansBackend() {
-    var url = 'wss://spirodon.games/playersocket/websocket';
-    url += '?';
-    url += 'channel=spirodonfl&';
-    url += 'id=rvice_sucks_deez_nutz&';
-    url += 'login=' + current_user.login + '&';
-    url += 'name=' + current_user.display_name;
-    player_ryans_backend = new WebSocket(url);
+    player_ryans_backend = new WebSocket('wss://spirodon.games/playersocket/websocket');
     player_ryans_backend.onerror = function(e) {
         console.error(e);
         player_ryans_backend.close();

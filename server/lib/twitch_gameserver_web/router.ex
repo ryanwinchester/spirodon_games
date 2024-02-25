@@ -19,13 +19,13 @@ defmodule TwitchGameServerWeb.Router do
 
     get "/", PageController, :home
 
-    get "/game", GameController, :show
-
     live "/leaderboard", ScoreLive.Index, :index
     # live "/scores/new", ScoreLive.Index, :new
     # live "/scores/:id/edit", ScoreLive.Index, :edit
     # live "/scores/:id", ScoreLive.Show, :show
     # live "/scores/:id/show/edit", ScoreLive.Show, :edit
+
+    resources "/games", GameController
   end
 
   # Other scopes may use custom stacks.

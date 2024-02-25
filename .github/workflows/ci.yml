@@ -54,7 +54,7 @@ jobs:
       - name: Elixir Deps cache
         uses: actions/cache@v3
         with:
-          path: deps
+          path: server/deps
           key: mix-${{ matrix.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ hashFiles('**/mix.lock') }}
           restore-keys: mix-${{ matrix.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-
       - run: mix deps.get
