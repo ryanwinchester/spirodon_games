@@ -118,8 +118,8 @@ var MULTIPLAYER = {
             if (data.player_coords) {
                 for (var i = 0; i < data.player_coords.length; ++i) {
                     var current_coords = [_GAME.game_entityGetWorldX(i), _GAME.game_entityGetWorldY(i)];
-                    _GAME.game_entitySetWorldData(0, 2, current_coords[0], current_coords[1], 0);
-                    _GAME.game_entitySetWorldData(0, 2, data.player_coords[i].x, data.player_coords[i].y, i);
+                    _GAME.game_setWorldData(0, 2, current_coords[0], current_coords[1], 0);
+                    _GAME.game_setWorldData(0, 2, data.player_coords[i].x, data.player_coords[i].y, i);
                 }
             }
             // TODO: Kraken
