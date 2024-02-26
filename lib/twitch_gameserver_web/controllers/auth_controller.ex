@@ -4,12 +4,19 @@ defmodule TwitchGameServerWeb.Auth.AuthController do
   alias TwitchGameServer.Accounts
   alias TwitchGameServerWeb.Auth.UserAuth
 
+  @doc """
+  Redirect to the OAuth2 provider's authorization URL.
+  """
   def request(conn, %{"provider" => "twitch"}) do
     client = twitch_client() |> OAuth2.Client.put_param(:scope, "user:read:email")
     authorize_url = OAuth2.Client.authorize_url!(client)
     redirect(conn, external: authorize_url)
   end
 
+  @doc """
+  Callback to handle the provider's redirect back with the code for access
+  token.
+  """
   def callback(conn, %{"provider" => "twitch", "code" => code}) do
     client = twitch_client()
 
@@ -31,14 +38,13 @@ defmodule TwitchGameServerWeb.Auth.AuthController do
       |> OAuth2.Client.put_header("client-id", client.client_id)
       |> OAuth2.Client.get!("/helix/users")
 
-    %{"display_name" => display_name, "email" => email, "id" => id} = user_data
+    %{"email" => email} = user_attrs = user_attrs("twitch", user_data)
 
-    attrs = %{"display_name" => display_name, "email" => email, "twitch_id" => id}
-
+    # A cheeky little two-step user faux-upsert.
     {:ok, user} =
       case Accounts.get_user_by_email(email) do
-        nil -> Accounts.create_user_from_twitch(attrs)
-        user -> Accounts.update_user_from_twitch(user, attrs)
+        nil -> Accounts.create_user_from_twitch(user_attrs)
+        user -> Accounts.update_user_from_twitch(user, user_attrs)
       end
 
     conn
@@ -46,14 +52,16 @@ defmodule TwitchGameServerWeb.Auth.AuthController do
     |> redirect(to: ~p"/game")
   end
 
+  # Build the Twitch OAuth2 client.
   defp twitch_client do
     config = Application.fetch_env!(:twitch_gameserver, __MODULE__)
     client_id = Keyword.fetch!(config, :twitch_client_id)
     client_secret = Keyword.fetch!(config, :twitch_client_secret)
     url = TwitchGameServerWeb.Endpoint.url()
 
-    OAuth2.Client.new([
-      strategy: OAuth2.Strategy.AuthCode, #default
+    OAuth2.Client.new(
+      # default
+      strategy: OAuth2.Strategy.AuthCode,
       client_id: client_id,
       client_secret: client_secret,
       site: "https://api.twitch.tv",
@@ -62,6 +70,16 @@ defmodule TwitchGameServerWeb.Auth.AuthController do
       token_url: "https://id.twitch.tv/oauth2/token",
       token_method: :post,
       serializers: %{"application/json" => Jason}
-    ])
+    )
+  end
+
+  defp user_attrs("twitch", user_data) do
+    %{"display_name" => display_name, "email" => email, "id" => id} = user_data
+
+    %{
+      "display_name" => display_name,
+      "email" => email,
+      "twitch_id" => id
+    }
   end
 end
