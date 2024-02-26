@@ -8,11 +8,20 @@ defmodule TwitchGameServer.Accounts.User do
 
   schema "users" do
     field :email, :string
+    field :display_name, :string
     field :twitch_id, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :naive_datetime
     timestamps(type: :utc_datetime)
+  end
+
+  def twitch_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:display_name, :email, :twitch_id])
+    |> validate_required([:twitch_id])
+    |> validate_display_name()
+    |> validate_email([])
   end
 
   @doc """
@@ -43,6 +52,12 @@ defmodule TwitchGameServer.Accounts.User do
     |> cast(attrs, [:email, :password])
     |> validate_email(opts)
     |> validate_password(opts)
+  end
+
+  defp validate_display_name(changeset) do
+    changeset
+    |> validate_required([:display_name])
+    |> validate_length(:display_name, min: 3)
   end
 
   defp validate_email(changeset, opts) do

@@ -6,7 +6,8 @@ defmodule TwitchGameServer.Repo.Migrations.CreateUsersAuthTables do
       add :id, :binary_id, primary_key: true
       add :twitch_id, :string
       add :email, :citext, null: false
-      add :hashed_password, :string, null: false
+      add :display_name, :string, null: false
+      add :hashed_password, :string
       add :confirmed_at, :naive_datetime
       timestamps(type: :utc_datetime)
     end

@@ -7,6 +7,8 @@
 # General application configuration
 import Config
 
+config :oauth2, adapter: Tesla.Adapter.Mint
+
 config :twitch_gameserver,
   namespace: TwitchGameServer,
   ecto_repos: [TwitchGameServer.Repo],
