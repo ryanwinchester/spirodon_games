@@ -390,6 +390,8 @@ var TWITCH = {
         if (player_index !== -1) {
             _GAME.inputs_inputLeft(player_index);
             this.INVULN_PLAYERS[player_index] = null;
+        } else {
+            console.log('PLAYER NOT FOUND', user);
         }
         // _GAME.inputs_inputLeft(0);
     },
@@ -398,6 +400,8 @@ var TWITCH = {
         if (player_index !== -1) {
             _GAME.inputs_inputRight(player_index);
             this.INVULN_PLAYERS[player_index] = null;
+        } else {
+            console.log('PLAYER NOT FOUND', user);
         }
         // _GAME.inputs_inputRight(0);
     },
@@ -500,6 +504,8 @@ var TWITCH = {
                     break;
                 }
             }
+        } else {
+            console.log('PLAYER NOT FOUND', user);
         }
     },
     userDespawn: function (user, role, message) {
