@@ -1,3 +1,15 @@
+// TWITCH.ryans_ws.send(JSON.stringify({
+//     "send": {
+//         "user": "spirodonfl",
+//         "payload": { "spawn": true }
+//     }
+// });
+// TWITCH.ryans_ws.send(JSON.stringify({
+//     "broadcast": {
+//         "payload": { "spawn": true }
+//     }
+// });
+
 // TODO: Apply a keyboard shortcut along with the #twitch hash to enable twitch mode
 var TWITCH = {
     ryans_ws: null,
@@ -846,29 +858,3 @@ window.addEventListener('load', function() {
         });
     }
 });
-
-function TEST_PLAYER_IN_RYANS_BACKEND() {
-    var player_ryans_backend = new WebSocket('wss://spirodon.games/playersocket/websocket');
-    player_ryans_backend.onerror = function() {
-        console.log('S_MY_D');
-        player_ryans_backend.close();
-    };
-    player_ryans_backend.onclose = function() {
-        console.log('S-ED_MY_D');
-    };
-    player_ryans_backend.onmessage = function(event) {
-        var data = JSON.parse(event.data);
-        console.log('PLAYERINRYANSBACKEND', data);
-    };
-    player_ryans_backend.onopen = function() {
-        player_ryans_backend.send(JSON.stringify({
-            "command": "down",
-            "ts": 1708315762,
-            "user": {
-                "display_name": "RyanWinchester_",
-                "user_login": "ryanwinchester_",
-                "channel": "spirodonfl"
-            }
-        }));
-    };
-}
