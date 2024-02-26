@@ -1,6 +1,8 @@
 defmodule TwitchGameServerWeb.Router do
   use TwitchGameServerWeb, :router
 
+  import TwitchGameServerWeb.Auth.UserAuth
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -8,6 +10,7 @@ defmodule TwitchGameServerWeb.Router do
     plug :put_root_layout, html: {TwitchGameServerWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :fetch_current_user
   end
 
   pipeline :api do
@@ -28,10 +31,43 @@ defmodule TwitchGameServerWeb.Router do
     # live "/scores/:id/show/edit", ScoreLive.Show, :edit
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", TwitchGameServerWeb do
-  #   pipe_through :api
-  # end
+  ## Authentication routes
+
+  scope "/auth", TwitchGameServerWeb.Auth do
+    pipe_through [:browser, :redirect_if_user_is_authenticated]
+
+    live_session :redirect_if_user_is_authenticated,
+      on_mount: [{TwitchGameServerWeb.Auth.UserAuth, :redirect_if_user_is_authenticated}] do
+      live "/register", UserRegistrationLive, :new
+      live "/login", UserLoginLive, :new
+      live "/reset_password", UserForgotPasswordLive, :new
+      live "/reset_password/:token", UserResetPasswordLive, :edit
+    end
+
+    post "/login", UserSessionController, :create
+  end
+
+  scope "/users", TwitchGameServerWeb do
+    pipe_through [:browser, :require_authenticated_user]
+
+    live_session :require_authenticated_user,
+      on_mount: [{TwitchGameServerWeb.Auth.UserAuth, :ensure_authenticated}] do
+      live "/settings", UserSettingsLive, :edit
+      live "/settings/confirm_email/:token", UserSettingsLive, :confirm_email
+    end
+  end
+
+  scope "/auth", TwitchGameServerWeb.Auth do
+    pipe_through [:browser]
+
+    delete "/logout", UserSessionController, :delete
+
+    live_session :current_user,
+      on_mount: [{TwitchGameServerWeb.Auth.UserAuth, :mount_current_user}] do
+      live "/confirm/:token", UserConfirmationLive, :edit
+      live "/confirm", UserConfirmationInstructionsLive, :new
+    end
+  end
 
   # Enable LiveDashboard in development
   if Application.compile_env(:twitch_gameserver, :dev_routes) do
