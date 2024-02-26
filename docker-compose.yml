@@ -1,26 +1,26 @@
 version: '3.8'
 
 services:
-  # server:
-  #   build: .
-  #   volumes:
-  #     - ./db:/etc/twitch_gameserver/db_data
-  #     - /etc/letsencrypt/live/spirodon.games/privkey.pem:/etc/twitch_gameserver/ssl_certs/privkey.pem
-  #     - /etc/letsencrypt/live/spirodon.games/fullchain.pem:/etc/twitch_gameserver/ssl_certs/fullchain.pem
-  #   environment:
-  #     DATABASE_URL: ${DATABASE_URL}
-  #     SECRET_KEY_BASE: ${SECRET_KEY_BASE}
-  #     PORT: ${PORT}
-  #     PHX_HOST: ${PHX_HOST}
-  #     GAMESERVER_SSL_KEY_PATH: ${GAMESERVER_SSL_KEY_PATH}
-  #     GAMESERVER_SSL_CERT_PATH: ${GAMESERVER_SSL_CERT_PATH}
-  #     TWITCH_USER: ${TWITCH_USER}
-  #     TWITCH_CHANNELS: ${TWITCH_CHANNELS}
-  #     TWITCH_MOD_CHANNELS: ${TWITCH_MOD_CHANNELS}
-  #     TWITCH_OAUTH_TOKEN: ${TWITCH_OAUTH_TOKEN}
-  #     LOG_LEVEL: ${LOG_LEVEL}
-  #   ports:
-  #     - ${PORT}:${PORT}
+  server:
+    build: .
+    volumes:
+      - ./db:/etc/twitch_gameserver/db_data
+      - /etc/letsencrypt/live/spirodon.games/privkey.pem:/etc/twitch_gameserver/ssl_certs/privkey.pem
+      - /etc/letsencrypt/live/spirodon.games/fullchain.pem:/etc/twitch_gameserver/ssl_certs/fullchain.pem
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      PORT: ${PORT}
+      PHX_HOST: ${PHX_HOST}
+      GAMESERVER_SSL_KEY_PATH: ${GAMESERVER_SSL_KEY_PATH}
+      GAMESERVER_SSL_CERT_PATH: ${GAMESERVER_SSL_CERT_PATH}
+      TWITCH_USER: ${TWITCH_USER}
+      TWITCH_CHANNELS: ${TWITCH_CHANNELS}
+      TWITCH_MOD_CHANNELS: ${TWITCH_MOD_CHANNELS}
+      TWITCH_OAUTH_TOKEN: ${TWITCH_OAUTH_TOKEN}
+      LOG_LEVEL: ${LOG_LEVEL}
+    ports:
+      - ${PORT}:${PORT}
 
   postgres:
     image: postgres:15.6
