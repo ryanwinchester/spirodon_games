@@ -157,6 +157,18 @@ defmodule TwitchGameServer.Accounts do
     |> Ecto.Multi.delete_all(:tokens, UserToken.by_user_and_contexts_query(user, [context]))
   end
 
+  def create_user_from_twitch(attrs) do
+    %User{}
+    |> User.twitch_changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def update_user_from_twitch(user, attrs) do
+    user
+    |> User.twitch_changeset(attrs)
+    |> Repo.update()
+  end
+
   @doc ~S"""
   Delivers the update email instructions to the given user.
 

@@ -45,6 +45,9 @@ defmodule TwitchGameServerWeb.Router do
     end
 
     post "/login", UserSessionController, :create
+
+    get "/:provider", AuthController, :request
+    get "/:provider/callback", AuthController, :callback
   end
 
   scope "/users", TwitchGameServerWeb do
