@@ -125,7 +125,7 @@ var MULTIPLAYER = {
             if (data.kraken_coords) {
                 var current_coords = [_GAME.game_entityGetWorldX(8), _GAME.game_entityGetWorldY(8)];
                 _GAME.game_setWorldData(0, 2, current_coords[0], current_coords[1], 0);
-                _GAME.game_setWorldData(0, 2, data.kraken_coords[0], data.kraken_coords[1], 98);
+                _GAME.game_setWorldData(0, 2, data.kraken_coords[0], data.kraken_coords[1], 9);
             }
             if (data.kraken_health) {
                 _GAME.game_entitySetHealth(8, data.kraken_health);
