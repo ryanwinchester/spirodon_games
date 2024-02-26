@@ -104,26 +104,25 @@ var MULTIPLAYER = {
         MULTIPLAYER.ws.onmessage = function(event) {
             var data = JSON.parse(event.data);
             console.log('PLAYERINRYANSBACKEND', data);
-            var user = data.user;
-            if (data.spawn) {
-                TWITCH.userSpawn(user);
-            } else if (data.moveLeft) {
-                TWITCH.handleLeft(user);
-            } else if (data.moveRight) {
-                TWITCH.handleRight(user);
-            } else if (data.moveUp) {
-                TWITCH.handleUp(user);
-            } else if (data.moveDown) {
-                TWITCH.handleDown(user);
-            } else if (data.attack) {
-                TWITCH.handleAttack(user);
-            } else if (data.done) {
-                TWITCH.handleDone(user);
+            if (data.health) {
+                for (var i = 0; i < data.health.length; ++i) {
+                    _GAME.game_entitySetHealth(i, data.health[i]);
+                }
+            }
+            if (data.players) {
+                TWITCH.SHIPS_TO_PLAYER = data.players;
+            }
+            if (data.kraken) {
+                TWITCH.KRAKEN = data.kraken;
+            }
+            if (data.player_coords) {
+                for (var i = 0; i < data.player_coords.length; ++i) {
+                    var current_coords = [_GAME.game_entityGetWorldX(i), _GAME.game_entityGetWorldY(i)];
+                    _GAME.game_entitySetWorldData(0, 2, current_coords[0], current_coords[1], 0);
+                    _GAME.game_entitySetWorldData(0, 2, data.player_coords[i].x, data.player_coords[i].y, i);
+                }
             }
             // TODO: Kraken
-            // On main server, kraken moves randomly
-            // need to send kraken location to all clients
-            // do NOT move kraken randomly on client side
         };
         MULTIPLAYER.ws.onopen = function(e) {
             console.log('Connection Open');
