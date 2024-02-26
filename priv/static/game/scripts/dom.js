@@ -701,7 +701,7 @@ window.addEventListener('load', function () {
         LOADER.loaded('atlas');
     }
     atlas.src = ATLAS_PNG_FILENAME;
-    var jsonFilePath = 'json/layer_id_to_image.json';
+    var jsonFilePath = '/game/json/layer_id_to_image.json';
     loadJsonFile(jsonFilePath, function(data) {
         if (data) {
             LAYER_ID_TO_IMAGE.data = data;
