@@ -181,7 +181,9 @@ var EDITOR = {
     },
     updateEditorModeDisplay: function () {
         var editor_mode_el = document.getElementById('current_editor_mode');
-        editor_mode_el.innerHTML = EDITOR.mode_as_string[EDITOR.mode];
+        if (editor_mode_el instanceof HTMLElement) {
+            editor_mode_el.innerHTML = EDITOR.mode_as_string[EDITOR.mode];
+        }
     },
     handleInput: function (inputEvent) {
         if (inputEvent.shiftKey === true) {
