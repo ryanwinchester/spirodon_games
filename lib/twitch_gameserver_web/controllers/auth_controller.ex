@@ -50,6 +50,7 @@ defmodule TwitchGameServerWeb.Auth.AuthController do
     config = Application.fetch_env!(:twitch_gameserver, __MODULE__)
     client_id = Keyword.fetch!(config, :twitch_client_id)
     client_secret = Keyword.fetch!(config, :twitch_client_secret)
+    url = TwitchGameServerWeb.Endpoint.url()
 
     OAuth2.Client.new([
       strategy: OAuth2.Strategy.AuthCode, #default
@@ -57,7 +58,7 @@ defmodule TwitchGameServerWeb.Auth.AuthController do
       client_secret: client_secret,
       site: "https://api.twitch.tv",
       authorize_url: "https://id.twitch.tv/oauth2/authorize",
-      redirect_uri: "http://localhost:4040/auth/twitch/callback",
+      redirect_uri: "#{url}/auth/twitch/callback",
       token_url: "https://id.twitch.tv/oauth2/token",
       token_method: :post,
       serializers: %{"application/json" => Jason}
