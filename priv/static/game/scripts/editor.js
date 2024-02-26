@@ -311,10 +311,12 @@ var EDITOR = {
     },
     updateGameMode: function () {
         var game_mode = document.getElementById('game_mode');
-        if (TWITCH.GAME_MODE === 0) {
-            game_mode.innerHTML = 'Real Time';
-        } else if (TWITCH.GAME_MODE === 1) {
-            game_mode.innerHTML = 'Turn Based';
+        if (game_mode instanceof HTMLElement) {
+            if (TWITCH.GAME_MODE === 0) {
+                game_mode.innerHTML = 'Real Time';
+            } else if (TWITCH.GAME_MODE === 1) {
+                game_mode.innerHTML = 'Turn Based';
+            }
         }
     },
 };
