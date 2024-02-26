@@ -15,30 +15,38 @@ var EDITOR = {
         this.updateEditorModeDisplay();
 
         this.current_data_id_el = document.getElementById('current_data_id');
-        this.current_data_id_el.addEventListener('keyup', function () {
-            EDITOR.current_data_id = EDITOR.current_data_id_el.value;
-        });
+        if (this.current_data_id_el instanceof HTMLElement) {
+            this.current_data_id_el.addEventListener('keyup', function () {
+                EDITOR.current_data_id = EDITOR.current_data_id_el.value;
+            });
+        }
         this.current_layer_id_el = document.getElementById('current_layer_id');
-        this.current_layer_id_el.addEventListener('keyup', function () {
-            EDITOR.current_layer_id = EDITOR.current_layer_id_el.value;
-        });
+        if (this.current_layer_id_el instanceof HTMLElement) {
+            this.current_layer_id_el.addEventListener('keyup', function () {
+                EDITOR.current_layer_id = EDITOR.current_layer_id_el.value;
+            });
+        }
 
         this.current_asset_img_el = document.getElementById('current_asset_img');
-        this.current_asset_img_el.style.width = (SIZE * SCALE) + 'px';
-        this.current_asset_img_el.style.height = (SIZE * SCALE) + 'px';
-        this.current_asset_img_el.style.border = '1px solid red';
-        this.current_asset_img_el.style.backgroundImage = 'url("' + ATLAS_PNG_FILENAME + '")';
-        this.updateCurrentAssetImg();
+        if (this.current_asset_img_el instanceof HTMLElement) {
+            this.current_asset_img_el.style.width = (SIZE * SCALE) + 'px';
+            this.current_asset_img_el.style.height = (SIZE * SCALE) + 'px';
+            this.current_asset_img_el.style.border = '1px solid red';
+            this.current_asset_img_el.style.backgroundImage = 'url("' + ATLAS_PNG_FILENAME + '")';
+            this.updateCurrentAssetImg();
+        }
 
         this.last_clicked_element = document.createElement('div');
-        this.last_clicked_element.classList.add('hide');
-        this.last_clicked_element.style.width = (SIZE * SCALE) + 'px';
-        this.last_clicked_element.style.height = (SIZE * SCALE) + 'px';
-        this.last_clicked_element.style.position = 'absolute';
-        this.last_clicked_element.style.border = '2px solid red';
-        // TODO: Is there a better way to track & set this?
-        this.last_clicked_element.style.zIndex = 99999;
-        document.getElementById('view').appendChild(this.last_clicked_element);
+        if (this.last_clicked_element instanceof HTMLElement) {
+            this.last_clicked_element.classList.add('hide');
+            this.last_clicked_element.style.width = (SIZE * SCALE) + 'px';
+            this.last_clicked_element.style.height = (SIZE * SCALE) + 'px';
+            this.last_clicked_element.style.position = 'absolute';
+            this.last_clicked_element.style.border = '2px solid red';
+            // TODO: Is there a better way to track & set this?
+            this.last_clicked_element.style.zIndex = 99999;
+            document.getElementById('view').appendChild(this.last_clicked_element);
+        }
 
         var element_view = document.getElementById('view');
         var element_clickable_view = document.getElementById('clickable_view');
