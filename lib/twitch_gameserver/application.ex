@@ -10,10 +10,10 @@ defmodule TwitchGameServer.Application do
     children = [
       TwitchGameServerWeb.Telemetry,
       TwitchGameServer.Repo,
-      {Ecto.Migrator,
-       repos: Application.fetch_env!(:twitch_gameserver, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:twitch_gameserver, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: TwitchGameServer.PubSub},
+      {Ecto.Migrator,
+       repos: Application.fetch_env!(:twitch_gameserver, :ecto_repos), skip: skip_migrations?()},
       # Start a worker by calling: TwitchGameServer.Worker.start_link(arg)
       # {TwitchGameServer.Worker, arg},
       # Start to serve requests, typically the last entry
@@ -38,7 +38,6 @@ defmodule TwitchGameServer.Application do
   end
 
   defp skip_migrations?() do
-    # By default, sqlite migrations are run when using a release
-    System.get_env("RELEASE_NAME") != nil
+    System.get_env("SKIP_MIGRATIONS") == "true"
   end
 end
