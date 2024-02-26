@@ -122,6 +122,12 @@ var MULTIPLAYER = {
                     _GAME.game_setWorldData(0, 2, data.player_coords[i][0], data.player_coords[i][1], (i + 1));
                 }
             }
+            if (data.kraken_coords) {
+                _GAME.game_setWorldData(0, 2, data.kraken_coords[0], data.kraken_coords[1], 98);
+            }
+            if (data.kraken_health) {
+                _GAME.game_entitySetHealth(8, data.kraken_health);
+            }
             // TODO: Kraken
         };
         MULTIPLAYER.ws.onopen = function(e) {
