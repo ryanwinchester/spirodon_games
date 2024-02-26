@@ -299,10 +299,14 @@ var EDITOR = {
         var player_index = TWITCH.SHIPS_TO_PLAYER.indexOf(name);
         if (player_index !== -1) {
             console.trace('EDITOR: ', TWITCH.SHIPS_TO_PLAYER_COLORCODE[player_index]);
-            ship_editor_name.innerHTML = '<span style="color: ' + TWITCH.SHIPS_TO_PLAYER_COLORCODE[player_index] + '">' + name + '</span>';
+            if (ship_editor_name instanceof HTMLElement) {
+                ship_editor_name.innerHTML = '<span style="color: ' + TWITCH.SHIPS_TO_PLAYER_COLORCODE[player_index] + '">' + name + '</span>';
+            }
         } else {
             console.trace('EDITOR: NOT FOUND - ', name);
-            ship_editor_name.innerHTML = name;
+            if (ship_editor_name instanceof HTMLElement) {
+                ship_editor_name.innerHTML = name;
+            }
         }
     },
     updateGameMode: function () {
