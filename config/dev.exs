@@ -1,5 +1,7 @@
 import Config
 
+config :twitch_gameserver, TwitchGameServer.Mailer, adapter: Swoosh.Adapters.Local
+
 # Configure your database
 config :twitch_gameserver, TwitchGameServer.Repo,
   username: "postgres",
