@@ -130,6 +130,9 @@ var MULTIPLAYER = {
             if (data.kraken_health) {
                 _GAME.game_entitySetHealth(8, data.kraken_health);
             }
+            if (data.kraken_on) {
+                OCTOPUS[3] = true;
+            }
             // TODO: Kraken
         };
         MULTIPLAYER.ws.onopen = function(e) {
