@@ -1,10 +1,7 @@
 defmodule TwitchGameServer.Accounts.User do
-  use Ecto.Schema
+  use TwitchGameServer.Schema
 
   import Ecto.Changeset
-
-  @primary_key {:id, :binary_id, autogenerate: true}
-  @foreign_key_type :binary_id
 
   schema "users" do
     field :email, :string
@@ -49,7 +46,8 @@ defmodule TwitchGameServer.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password])
+    |> cast(attrs, [:email, :display_name, :password])
+    |> validate_display_name()
     |> validate_email(opts)
     |> validate_password(opts)
   end
@@ -58,6 +56,9 @@ defmodule TwitchGameServer.Accounts.User do
     changeset
     |> validate_required([:display_name])
     |> validate_length(:display_name, min: 3)
+    |> validate_format(:display_name, ~r/^[a-zA-Z0-9_-]+$/,
+      message: "can only be alphanumeric with dash or underscore"
+    )
   end
 
   defp validate_email(changeset, opts) do

@@ -34,6 +34,18 @@ defmodule TwitchGameServerWeb.Router do
   ## Authentication routes
 
   scope "/auth", TwitchGameServerWeb.Auth do
+    pipe_through [:browser]
+
+    delete "/logout", UserSessionController, :delete
+
+    live_session :current_user,
+      on_mount: [{TwitchGameServerWeb.Auth.UserAuth, :mount_current_user}] do
+      live "/confirm/:token", UserConfirmationLive, :edit
+      live "/confirm", UserConfirmationInstructionsLive, :new
+    end
+  end
+
+  scope "/auth", TwitchGameServerWeb.Auth do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
 
     live_session :redirect_if_user_is_authenticated,
@@ -57,18 +69,6 @@ defmodule TwitchGameServerWeb.Router do
       on_mount: [{TwitchGameServerWeb.Auth.UserAuth, :ensure_authenticated}] do
       live "/settings", UserSettingsLive, :edit
       live "/settings/confirm_email/:token", UserSettingsLive, :confirm_email
-    end
-  end
-
-  scope "/auth", TwitchGameServerWeb.Auth do
-    pipe_through [:browser]
-
-    delete "/logout", UserSessionController, :delete
-
-    live_session :current_user,
-      on_mount: [{TwitchGameServerWeb.Auth.UserAuth, :mount_current_user}] do
-      live "/confirm/:token", UserConfirmationLive, :edit
-      live "/confirm", UserConfirmationInstructionsLive, :new
     end
   end
 

@@ -28,10 +28,13 @@ defmodule TwitchGameServerWeb.Auth.UserRegistrationLiveTest do
       result =
         lv
         |> element("#registration_form")
-        |> render_change(user: %{"email" => "with spaces", "password" => "too short"})
+        |> render_change(
+          user: %{"email" => "with spaces", "display_name" => "a b", "password" => "too short"}
+        )
 
       assert result =~ "Register"
       assert result =~ "must have the @ sign and no spaces"
+      assert result =~ "can only be alphanumeric with dash or underscore"
       assert result =~ "should be at least 12 character"
     end
   end
@@ -41,6 +44,7 @@ defmodule TwitchGameServerWeb.Auth.UserRegistrationLiveTest do
       {:ok, lv, _html} = live(conn, ~p"/auth/register")
 
       email = unique_user_email()
+      display_name = valid_user_display_name()
       form = form(lv, "#registration_form", user: valid_user_attributes(email: email))
       render_submit(form)
       conn = follow_trigger_action(form, conn)
@@ -50,7 +54,7 @@ defmodule TwitchGameServerWeb.Auth.UserRegistrationLiveTest do
       # Now do a logged in request and assert on the menu
       conn = get(conn, "/")
       response = html_response(conn, 200)
-      assert response =~ email
+      assert response =~ display_name
       assert response =~ "Settings"
       assert response =~ "Log out"
     end
@@ -63,7 +67,7 @@ defmodule TwitchGameServerWeb.Auth.UserRegistrationLiveTest do
       result =
         lv
         |> form("#registration_form",
-          user: %{"email" => user.email, "password" => "valid_password"}
+          user: %{"email" => user.email, "display_name" => "abc", "password" => "valid_password"}
         )
         |> render_submit()
 

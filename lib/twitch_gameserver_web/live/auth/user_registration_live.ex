@@ -32,6 +32,7 @@ defmodule TwitchGameServerWeb.Auth.UserRegistrationLive do
         </.error>
 
         <.input field={@form[:email]} type="email" label="Email" required />
+        <.input field={@form[:display_name]} type="text" label="Display name" required />
         <.input field={@form[:password]} type="password" label="Password" required />
 
         <:actions>

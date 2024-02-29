@@ -50,6 +50,7 @@ defmodule TwitchGameServer.MixProject do
       {:bandit, ">= 0.0.0"},
 
       #
+      {:uuid_v7, "~> 0.1.0"},
       {:bcrypt_elixir, "~> 3.0"},
       {:oauth2, "~> 2.0"},
       {:swoosh, "~> 1.4"},

@@ -54,15 +54,22 @@ defmodule TwitchGameServer.AccountsTest do
 
       assert %{
                password: ["can't be blank"],
+               display_name: ["can't be blank"],
                email: ["can't be blank"]
              } = errors_on(changeset)
     end
 
     test "validates email and password when given" do
-      {:error, changeset} = Accounts.register_user(%{email: "not valid", password: "not valid"})
+      {:error, changeset} =
+        Accounts.register_user(%{
+          email: "not valid",
+          display_name: "not valid",
+          password: "not valid"
+        })
 
       assert %{
                email: ["must have the @ sign and no spaces"],
+               display_name: ["can only be alphanumeric with dash or underscore"],
                password: ["should be at least 12 character(s)"]
              } = errors_on(changeset)
     end
@@ -97,7 +104,7 @@ defmodule TwitchGameServer.AccountsTest do
   describe "change_user_registration/2" do
     test "returns a changeset" do
       assert %Ecto.Changeset{} = changeset = Accounts.change_user_registration(%User{})
-      assert changeset.required == [:password, :email]
+      assert changeset.required == [:password, :email, :display_name]
     end
 
     test "allows fields to be set" do
