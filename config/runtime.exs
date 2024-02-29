@@ -24,8 +24,8 @@ if config_env() != :test do
   end
 
   config :twitch_gameserver, TwitchGameServerWeb.Auth.AuthController,
-    twitch_client_id: System.fetch_env!("TWITCH_APP_CLIENT_ID"),
-    twitch_client_secret: System.fetch_env!("TWITCH_APP_CLIENT_SECRET")
+    twitch_client_id: System.get_env("TWITCH_APP_CLIENT_ID"),
+    twitch_client_secret: System.get_env("TWITCH_APP_CLIENT_SECRET")
 end
 
 # Set the log level at runtime?

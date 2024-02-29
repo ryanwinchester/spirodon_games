@@ -54,10 +54,14 @@ defmodule TwitchGameServerWeb.Auth.AuthController do
 
   # Build the Twitch OAuth2 client.
   defp twitch_client do
-    config = Application.fetch_env!(:twitch_gameserver, __MODULE__)
-    client_id = Keyword.fetch!(config, :twitch_client_id)
-    client_secret = Keyword.fetch!(config, :twitch_client_secret)
     url = TwitchGameServerWeb.Endpoint.url()
+    config = Application.fetch_env!(:twitch_gameserver, __MODULE__)
+
+    client_id =
+      Keyword.fetch!(config, :twitch_client_id) || raise "twitch_client_id not set"
+
+    client_secret =
+      Keyword.fetch!(config, :twitch_client_secret) || raise "twitch_client_secret not set"
 
     OAuth2.Client.new(
       # default
