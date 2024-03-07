@@ -30,4 +30,19 @@ defmodule TwitchGameServer.AccountsFixtures do
     [_, token | _] = String.split(captured_email.text_body, "[TOKEN]")
     token
   end
+
+  @doc """
+  Generate a channel_role.
+  """
+  def channel_role_fixture(attrs \\ %{}) do
+    {:ok, channel_role} =
+      attrs
+      |> Enum.into(%{
+        channel: "some channel",
+        role: "normal"
+      })
+      |> TwitchGameServer.Accounts.create_channel_role()
+
+    channel_role
+  end
 end

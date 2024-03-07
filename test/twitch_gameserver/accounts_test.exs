@@ -512,4 +512,65 @@ defmodule TwitchGameServer.AccountsTest do
       refute inspect(%User{password: "123456"}) =~ "password: \"123456\""
     end
   end
+
+  describe "channel_roles" do
+    alias TwitchGameServer.Accounts.ChannelRole
+
+    import TwitchGameServer.AccountsFixtures
+
+    @invalid_attrs %{role: nil, channel: nil}
+
+    test "list_channel_roles/0 returns all channel_roles" do
+      channel_role = channel_role_fixture()
+      assert Accounts.list_channel_roles() == [channel_role]
+    end
+
+    test "get_channel_role!/1 returns the channel_role with given id" do
+      channel_role = channel_role_fixture()
+      assert Accounts.get_channel_role!(channel_role.id) == channel_role
+    end
+
+    test "create_channel_role/1 with valid data creates a channel_role" do
+      valid_attrs = %{role: "sub", channel: "some channel"}
+
+      assert {:ok, %ChannelRole{} = channel_role} = Accounts.create_channel_role(valid_attrs)
+      assert channel_role.role == :sub
+      assert channel_role.channel == "some channel"
+    end
+
+    test "create_channel_role/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Accounts.create_channel_role(@invalid_attrs)
+    end
+
+    test "update_channel_role/2 with valid data updates the channel_role" do
+      channel_role = channel_role_fixture()
+      update_attrs = %{role: "broadcaster", channel: "some updated channel"}
+
+      assert {:ok, %ChannelRole{} = channel_role} =
+               Accounts.update_channel_role(channel_role, update_attrs)
+
+      assert channel_role.role == :broadcaster
+      assert channel_role.channel == "some updated channel"
+    end
+
+    test "update_channel_role/2 with invalid data returns error changeset" do
+      channel_role = channel_role_fixture()
+
+      assert {:error, %Ecto.Changeset{}} =
+               Accounts.update_channel_role(channel_role, @invalid_attrs)
+
+      assert channel_role == Accounts.get_channel_role!(channel_role.id)
+    end
+
+    test "delete_channel_role/1 deletes the channel_role" do
+      channel_role = channel_role_fixture()
+      assert {:ok, %ChannelRole{}} = Accounts.delete_channel_role(channel_role)
+      assert_raise Ecto.NoResultsError, fn -> Accounts.get_channel_role!(channel_role.id) end
+    end
+
+    test "change_channel_role/1 returns a channel_role changeset" do
+      channel_role = channel_role_fixture()
+      assert %Ecto.Changeset{} = Accounts.change_channel_role(channel_role)
+    end
+  end
 end

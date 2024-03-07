@@ -362,4 +362,100 @@ defmodule TwitchGameServer.Accounts do
       {:error, :user, changeset, _} -> {:error, changeset}
     end
   end
+
+  alias TwitchGameServer.Accounts.ChannelRole
+
+  @doc """
+  Returns the list of channel_roles.
+
+  ## Examples
+
+      iex> list_channel_roles()
+      [%ChannelRole{}, ...]
+
+  """
+  def list_channel_roles do
+    Repo.all(ChannelRole)
+  end
+
+  @doc """
+  Gets a single channel_role.
+
+  Raises `Ecto.NoResultsError` if the Channel role does not exist.
+
+  ## Examples
+
+      iex> get_channel_role!(123)
+      %ChannelRole{}
+
+      iex> get_channel_role!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_channel_role!(id), do: Repo.get!(ChannelRole, id)
+
+  @doc """
+  Creates a channel_role.
+
+  ## Examples
+
+      iex> create_channel_role(%{field: value})
+      {:ok, %ChannelRole{}}
+
+      iex> create_channel_role(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_channel_role(attrs \\ %{}) do
+    %ChannelRole{}
+    |> ChannelRole.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a channel_role.
+
+  ## Examples
+
+      iex> update_channel_role(channel_role, %{field: new_value})
+      {:ok, %ChannelRole{}}
+
+      iex> update_channel_role(channel_role, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_channel_role(%ChannelRole{} = channel_role, attrs) do
+    channel_role
+    |> ChannelRole.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a channel_role.
+
+  ## Examples
+
+      iex> delete_channel_role(channel_role)
+      {:ok, %ChannelRole{}}
+
+      iex> delete_channel_role(channel_role)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_channel_role(%ChannelRole{} = channel_role) do
+    Repo.delete(channel_role)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking channel_role changes.
+
+  ## Examples
+
+      iex> change_channel_role(channel_role)
+      %Ecto.Changeset{data: %ChannelRole{}}
+
+  """
+  def change_channel_role(%ChannelRole{} = channel_role, attrs \\ %{}) do
+    ChannelRole.changeset(channel_role, attrs)
+  end
 end

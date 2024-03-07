@@ -10,7 +10,7 @@ defmodule TwitchGameServerWeb.TopScoreLiveTest do
   end
 
   describe "Index" do
-    setup [:create_score]
+    setup [:create_score, :register_and_login_user]
 
     test "lists scores", %{conn: conn, score: score} do
       {:ok, _index_live, html} = live(conn, ~p"/leaderboard")
