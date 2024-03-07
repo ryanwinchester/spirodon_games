@@ -13,29 +13,27 @@ defmodule TwitchGameServerWeb.Router do
     plug :fetch_current_user
   end
 
+  pipeline :game_auth do
+    plug :fetch_current_user
+    plug :require_authenticated_user
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
 
   scope "/", TwitchGameServerWeb do
     pipe_through :browser
-
     get "/", PageController, :home
+
+    pipe_through :game_auth
+    get "/game", GameController, :show
 
     live "/leaderboard", ScoreLive.Index, :index
     # live "/scores/new", ScoreLive.Index, :new
     # live "/scores/:id/edit", ScoreLive.Index, :edit
     # live "/scores/:id", ScoreLive.Show, :show
     # live "/scores/:id/show/edit", ScoreLive.Show, :edit
-  end
-
-  scope "/", TwitchGameServerWeb.Auth do
-    pipe_through :browser
-    get "/game", GameController, :show
-    live_session :current_user,
-      on_mount: [{TwitchGameServerWeb.Auth.UserAuth, :mount_current_user}] do
-      live "/game", GameController, :show
-    end
   end
 
   ## Authentication routes
