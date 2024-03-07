@@ -17,7 +17,6 @@
     <.live_title suffix=" · Spirodon.Games">
       <%= assigns[:page_title] || "Home" %>
     </.live_title>
-    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <%= if @current_user do %>
       <script type="text/javascript">
         window.USER = {
@@ -28,6 +27,6 @@
       <script type="module" src="https://spirodonfl.github.io/uwnh-remake/scripts_js_modules/injector.js"></script>
     <% end %>
   </head>
-  <body class="bg-black text-white antialiased">
+  <body>
   </body>
 </html>
