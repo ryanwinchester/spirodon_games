@@ -22,13 +22,16 @@ defmodule TwitchGameServerWeb.Router do
 
     get "/", PageController, :home
 
-    get "/game", GameController, :show
-
     live "/leaderboard", ScoreLive.Index, :index
     # live "/scores/new", ScoreLive.Index, :new
     # live "/scores/:id/edit", ScoreLive.Index, :edit
     # live "/scores/:id", ScoreLive.Show, :show
     # live "/scores/:id/show/edit", ScoreLive.Show, :edit
+
+    live_session :current_user,
+      on_mount: [{TwitchGameServerWeb.Auth.UserAuth, :mount_current_user}] do
+      get "/game", GameController, :show
+    end
   end
 
   ## Authentication routes
