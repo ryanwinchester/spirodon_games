@@ -27,10 +27,14 @@ defmodule TwitchGameServerWeb.Router do
     # live "/scores/:id/edit", ScoreLive.Index, :edit
     # live "/scores/:id", ScoreLive.Show, :show
     # live "/scores/:id/show/edit", ScoreLive.Show, :edit
+  end
 
+  scope "/", TwitchGameServerWeb.Auth do
+    pipe_through :browser
+    get "/game", GameController, :show
     live_session :current_user,
       on_mount: [{TwitchGameServerWeb.Auth.UserAuth, :mount_current_user}] do
-      get "/game", GameController, :show
+      live "/game", GameController, :show
     end
   end
 
