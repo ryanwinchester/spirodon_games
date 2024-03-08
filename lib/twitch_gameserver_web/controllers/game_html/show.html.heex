@@ -22,7 +22,7 @@
         window.USER = {
           "username": "<%= @current_user.display_name || @current_user.email %>",
           "login": "<%= @current_user.id %>",
-          "role": "<%= @current_user.role %>"
+          "role": "<%= @current_user.channel_roles %>"
         };
       </script>
       <script
