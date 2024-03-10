@@ -5,6 +5,8 @@ defmodule TwitchGameServer.Accounts.User do
 
   import Ecto.Changeset
 
+  @derive {Jason.Encoder, only: [:id, :email, :twitch_id, :display_name, :channel_roles]}
+
   schema "users" do
     field :email, :string
     field :display_name, :string

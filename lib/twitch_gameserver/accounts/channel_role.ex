@@ -1,16 +1,16 @@
 defmodule TwitchGameServer.Accounts.ChannelRole do
   use TwitchGameServer.Schema
 
-  alias TwitchGameServer.Accounts.User
-
   import Ecto.Changeset
 
   @roles ~w[broadcaster mod vip sub]a
 
+  @derive {Jason.Encoder, only: [:channel, :role]}
+
   schema "channel_roles" do
     field :role, Ecto.Enum, values: @roles
     field :channel, :string
-    belongs_to :user, User
+    field :user_id, :binary_id
     timestamps()
   end
 
