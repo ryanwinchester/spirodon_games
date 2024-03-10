@@ -25,7 +25,7 @@
           "login": "<%= @current_user.id %>"
           "roles": [
           <%= for role <- @current_user.channel_roles do %>
-            "<%= role %>",
+            "<%= Jason.encode!(role) %>",
           <% end %>
           ];
         };
