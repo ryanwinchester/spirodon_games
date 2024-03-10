@@ -6,7 +6,10 @@ defmodule TwitchGameServer.Accounts do
   import Ecto.Query, warn: false
   alias TwitchGameServer.Repo
 
-  alias TwitchGameServer.Accounts.{User, UserToken, UserNotifier}
+  alias TwitchGameServer.Accounts.ChannelRole
+  alias TwitchGameServer.Accounts.User
+  alias TwitchGameServer.Accounts.UserToken
+  alias TwitchGameServer.Accounts.UserNotifier
 
   ## Database getters
 
@@ -24,6 +27,24 @@ defmodule TwitchGameServer.Accounts do
   """
   def get_user_by_email(email) when is_binary(email) do
     Repo.get_by(User, email: email)
+  end
+
+  @doc """
+  Gets a user by email.
+
+  Raises `Ecto.NoResultsError` if the User does not exist.
+
+  ## Examples
+
+      iex> get_user_by_email!("foo@example.com")
+      %User{}
+
+      iex> get_user_by_email!("bad@example.com")
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_user_by_email!(email) when is_binary(email) do
+    Repo.get_by!(User, email: email)
   end
 
   @doc """
@@ -167,6 +188,24 @@ defmodule TwitchGameServer.Accounts do
     user
     |> User.twitch_changeset(attrs)
     |> Repo.update()
+  end
+
+  @doc """
+  Update the user's roles for a channel.
+  """
+  def put_user_channel_roles!(user, channel, roles) do
+    user = Repo.preload(user, [:channel_roles])
+
+    # Remove all roles for this channel and add only the ones provided, to make
+    # sure that they always remain in sync (per-channel).
+    channel_roles =
+      Enum.reject(user.channel_roles, &(&1.channel == channel)) ++
+        Enum.map(roles, &%{channel: channel, role: &1})
+
+    user
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_assoc(:channel_roles, channel_roles)
+    |> Repo.update!()
   end
 
   @doc ~S"""

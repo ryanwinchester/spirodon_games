@@ -38,8 +38,8 @@ defmodule TwitchGameServer.AccountsFixtures do
     {:ok, channel_role} =
       attrs
       |> Enum.into(%{
-        channel: "some channel",
-        role: "normal"
+        channel: "some_channel",
+        role: "sub"
       })
       |> TwitchGameServer.Accounts.create_channel_role()
 

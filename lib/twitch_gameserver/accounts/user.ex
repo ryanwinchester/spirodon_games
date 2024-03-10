@@ -1,6 +1,8 @@
 defmodule TwitchGameServer.Accounts.User do
   use TwitchGameServer.Schema
 
+  alias TwitchGameServer.Accounts.ChannelRole
+
   import Ecto.Changeset
 
   schema "users" do
@@ -10,6 +12,7 @@ defmodule TwitchGameServer.Accounts.User do
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :naive_datetime
+    has_many :channel_roles, ChannelRole, on_replace: :delete
     timestamps(type: :utc_datetime)
   end
 

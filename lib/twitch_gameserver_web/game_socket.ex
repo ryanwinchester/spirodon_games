@@ -7,6 +7,7 @@ defmodule TwitchGameServerWeb.GameSocket do
 
   require Logger
 
+  alias TwitchGameServer.Accounts
   alias TwitchGameServer.CommandServer
   alias TwitchGameServer.Game
 
@@ -96,6 +97,18 @@ defmodule TwitchGameServerWeb.GameSocket do
     Logger.debug("[GameSocket] setting rate to: #{rate_ms}ms")
     CommandServer.set_rate(rate_ms)
     results = Map.put(results, "rate", rate_ms)
+    {results, errors}
+  end
+
+  defp handle_data({"set_roles", payload}, {results, errors}) do
+    %{"email" => email, "channel" => channel, "roles" => roles} = payload
+    Logger.debug("[GameSocket] setting roles to: #{inspect(roles)}")
+
+    email
+    |> Accounts.get_user_by_email!()
+    |> Accounts.put_user_channel_roles!(channel, roles)
+
+    results = Map.put(results, "roles", roles)
     {results, errors}
   end
 
