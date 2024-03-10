@@ -21,7 +21,9 @@
       <script type="text/javascript">
         window.USER = {
           "username": "<%= @current_user.display_name || @current_user.email %>",
+          "email": "<%= @current_user.email %>",
           "login": "<%= @current_user.id %>"
+          "roles": "<%= @current_user.roles %>"
         };
       </script>
       <script
