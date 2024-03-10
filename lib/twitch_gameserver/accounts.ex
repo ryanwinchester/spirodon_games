@@ -1,4 +1,7 @@
 defmodule TwitchGameServer.Accounts do
+  @derive {Jason.Encoder, only: [:id, :email, :display_name, :twitch_id, :channel_roles]}
+  defstruct [:id, :email, :display_name, :twitch_id, :channel_roles]
+
   @moduledoc """
   The Accounts context.
   """
@@ -498,17 +501,5 @@ defmodule TwitchGameServer.Accounts do
   """
   def change_channel_role(%ChannelRole{} = channel_role, attrs \\ %{}) do
     ChannelRole.changeset(channel_role, attrs)
-  end
-
-  @derive {Jason.Encoder, only: [:id, :email, :display_name, :twitch_id, :channel_roles]}
-  defstruct [:id, :email, :display_name, :twitch_id, :channel_roles]
-
-  defimpl Jason.Encoder do
-    def encode(value, opts) do
-      value
-      |> Map.from_struct()
-      |> Map.drop([:__meta__, :channel_roles]) # Assuming you don't want to encode these fields
-      |> Jason.Encode.map(opts)
-    end
   end
 end
