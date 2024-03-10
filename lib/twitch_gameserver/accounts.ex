@@ -1,7 +1,4 @@
 defmodule TwitchGameServer.Accounts do
-  @derive {Jason.Encoder, only: [:id, :email, :display_name, :twitch_id, :channel_roles]}
-  defstruct [:id, :email, :display_name, :twitch_id, :channel_roles]
-
   @moduledoc """
   The Accounts context.
   """

@@ -19,11 +19,14 @@
     </.live_title>
     <%= if @current_user do %>
       <script type="text/javascript">
-        window.TEST_currentUser = <%= Phoenix.HTML.raw(Jason.encode!(@current_user)) %>;
         window.USER = {
           "username": "<%= @current_user.display_name || @current_user.email %>",
           "email": "<%= @current_user.email %>",
           "login": "<%= @current_user.id %>"
+          "roles": [
+          <%= for role <- @current_user.channel_roles do %>
+            "<%= role %>",
+          <% end %>
           ];
         };
       </script>
