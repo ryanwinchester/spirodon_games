@@ -91,6 +91,7 @@ defmodule TwitchGameServerWeb.Auth.UserAuth do
   def fetch_current_user(conn, _opts) do
     {user_token, conn} = ensure_user_token(conn)
     user = user_token && Accounts.get_user_by_session_token(user_token)
+    user = user && TwitchGameServer.Repo.preload(user, [:channel_roles])
     assign(conn, :current_user, user)
   end
 
@@ -175,9 +176,7 @@ defmodule TwitchGameServerWeb.Auth.UserAuth do
   defp mount_current_user(socket, session) do
     Phoenix.Component.assign_new(socket, :current_user, fn ->
       if user_token = session["user_token"] do
-        user = Accounts.get_user_by_session_token(user_token)
-        user = TwitchGameServer.Repo.preload(user, [:channel_roles])
-        user
+        Accounts.get_user_by_session_token(user_token)
       end
     end)
   end
