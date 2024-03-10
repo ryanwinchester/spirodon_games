@@ -500,6 +500,7 @@ defmodule TwitchGameServer.Accounts do
     ChannelRole.changeset(channel_role, attrs)
   end
 
+  @derive {Jason.Encoder, only: [:id, :email, :display_name, :twitch_id, :channel_roles]}
   defstruct [:id, :email, :display_name, :twitch_id, :channel_roles]
 
   defimpl Jason.Encoder do
@@ -511,5 +512,3 @@ defmodule TwitchGameServer.Accounts do
     end
   end
 end
-
-Protocol.derive(Jason.Encoder, TwitchGameServer.Accounts.User, only: [:id, :email, :display_name, :twitch_id, :channel_roles])
