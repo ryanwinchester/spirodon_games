@@ -176,7 +176,7 @@ defmodule TwitchGameServerWeb.Auth.UserAuth do
     Phoenix.Component.assign_new(socket, :current_user, fn ->
       if user_token = session["user_token"] do
         user = Accounts.get_user_by_session_token(user_token)
-        user = Repo.preload(user, :channel_roles)
+        user = TwitchGameServer.Repo.preload(user, [:channel_roles])
         user
       end
     end)
