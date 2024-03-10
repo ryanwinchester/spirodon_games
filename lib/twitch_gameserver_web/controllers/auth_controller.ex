@@ -38,7 +38,10 @@ defmodule TwitchGameServerWeb.Auth.AuthController do
       |> OAuth2.Client.put_header("client-id", client.client_id)
       |> OAuth2.Client.get!("/helix/users")
 
-    %{"email" => email} = user_attrs = user_attrs("twitch", user_data)
+    %{"email" => email} =
+      user_attrs =
+      user_attrs("twitch", user_data)
+      |> IO.inspect(label: "TWITCH USER")
 
     # A cheeky little two-step user faux-upsert.
     {:ok, user} =

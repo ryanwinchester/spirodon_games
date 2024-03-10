@@ -5,11 +5,12 @@ defmodule TwitchGameServer.Accounts.ChannelRole do
 
   import Ecto.Changeset
 
+  @roles ~w[broadcaster mod vip sub]a
+
   schema "channel_roles" do
-    field :role, Ecto.Enum, values: [:broadcaster, :mod, :vip, :sub, :normal]
+    field :role, Ecto.Enum, values: @roles
     field :channel, :string
     belongs_to :user, User
-
     timestamps()
   end
 
@@ -19,4 +20,7 @@ defmodule TwitchGameServer.Accounts.ChannelRole do
     |> cast(attrs, [:channel, :role])
     |> validate_required([:channel, :role])
   end
+
+  @doc "Get all possible roles."
+  def roles, do: @roles
 end

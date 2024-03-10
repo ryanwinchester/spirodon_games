@@ -21,7 +21,7 @@ defmodule TwitchGameServerWeb.Auth.UserSessionControllerTest do
       conn = get(conn, ~p"/")
       response = html_response(conn, 200)
       assert response =~ user.display_name
-      assert response =~ ~p"/users/settings"
+      # assert response =~ ~p"/users/settings"
       assert response =~ ~p"/auth/logout"
     end
 

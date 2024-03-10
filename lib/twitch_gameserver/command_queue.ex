@@ -4,6 +4,8 @@ defmodule TwitchGameServer.CommandQueue do
   """
   use GenServer
 
+  alias TwitchGameServer.Accounts.ChannelRole
+
   @type message :: TwitchChat.Events.Message.t()
 
   @type role :: :broadcaster | :mod | :sub | :normal
@@ -56,8 +58,8 @@ defmodule TwitchGameServer.CommandQueue do
   def handle_cast({:add, cmd, msg, limit}, queue) do
     if :queue.len(queue) < limit do
       timestamp = DateTime.to_unix(msg.timestamp, :millisecond)
-      role = role_from_message(msg)
-      {:noreply, :queue.in({cmd, timestamp, role}, queue)}
+      roles = Enum.reduce(ChannelRole.roles(), [], &add_role(&1, &2, msg))
+      {:noreply, :queue.in({cmd, timestamp, roles}, queue)}
     else
       {:noreply, queue}
     end
@@ -75,11 +77,11 @@ defmodule TwitchGameServer.CommandQueue do
   # Helpers
   # ----------------------------------------------------------------------------
 
-  # Get the role from the message.
-  # Note: If we switch to EventSub, this will need to change.
-  defp role_from_message(%{user_login: user, channel: user}), do: :broadcaster
-  defp role_from_message(%{is_mod?: true}), do: :mod
-  defp role_from_message(%{is_vip?: true}), do: :vip
-  defp role_from_message(%{is_sub?: true}), do: :sub
-  defp role_from_message(_msg), do: :normal
+  defp add_role(:broadcaster, %{user_login: user, channel: user}, roles),
+    do: [:broadcaster | roles]
+
+  defp add_role(:mod, %{is_mod?: true}, roles), do: [:mod | roles]
+  defp add_role(:vip, %{is_vip?: true}, roles), do: [:vip | roles]
+  defp add_role(:sub, %{is_sub?: true}, roles), do: [:sub | roles]
+  defp add_role(_role, _msg, roles), do: roles
 end

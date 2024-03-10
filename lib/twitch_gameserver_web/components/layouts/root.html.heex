@@ -28,12 +28,14 @@
           <%= @current_user.display_name || @current_user.email %>
         </li>
         <li>
+          <%!--
           <.link
             href={~p"/users/settings"}
             class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
           >
             Settings
           </.link>
+          --%>
         </li>
         <li>
           <.link
@@ -45,6 +47,7 @@
           </.link>
         </li>
       <% else %>
+        <%!--
         <li>
           <.link
             href={~p"/auth/register"}
@@ -53,6 +56,7 @@
             Register
           </.link>
         </li>
+        --%>
         <li>
           <.link
             href={~p"/auth/login"}
