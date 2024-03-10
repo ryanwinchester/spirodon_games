@@ -24,7 +24,7 @@
           "email": "<%= @current_user.email %>",
           "login": "<%= @current_user.id %>"
           "roles": [
-          <%= for role <- @current_user.channel_roles do %>
+          <%= for role <- @current_user.roles do %>
             "<%= role %>",
           <% end %>
           ];
