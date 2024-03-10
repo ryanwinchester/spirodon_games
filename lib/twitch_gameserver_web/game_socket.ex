@@ -104,12 +104,17 @@ defmodule TwitchGameServerWeb.GameSocket do
     %{"email" => email, "channel" => channel, "roles" => roles} = payload
     Logger.debug("[GameSocket] setting roles to: #{inspect(roles)}")
 
-    email
-    |> Accounts.get_user_by_email!()
-    |> Accounts.put_user_channel_roles!(channel, roles)
+    user = Accounts.get_user_by_email!(email)
 
-    results = Map.put(results, "roles", roles)
-    {results, errors}
+    case Accounts.put_user_channel_roles(user, channel, roles) do
+      {:ok, _user} ->
+        results = Map.put(results, "roles", roles)
+        {results, errors}
+
+      {:error, changeset} ->
+        error = %{"roles" => map_errors(changeset.errors)}
+        {results, [error | errors]}
+    end
   end
 
   defp handle_data({"set_queue_limit", limit}, {results, errors}) do

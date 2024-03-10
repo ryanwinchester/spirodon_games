@@ -193,19 +193,21 @@ defmodule TwitchGameServer.Accounts do
   @doc """
   Update the user's roles for a channel.
   """
-  def put_user_channel_roles!(user, channel, roles) do
-    user = Repo.preload(user, [:channel_roles])
+  def put_user_channel_roles(user, channel, roles) do
+    user =
+      Repo.preload(user, [:channel_roles])
+      |> IO.inspect(label: "USER", pretty: true, limit: :infinity)
 
     # Remove all roles for this channel and add only the ones provided, to make
     # sure that they always remain in sync (per-channel).
     channel_roles =
       Enum.reject(user.channel_roles, &(&1.channel == channel)) ++
-        Enum.map(roles, &%{channel: channel, role: &1})
+        Enum.map(roles, &ChannelRole.changeset(%ChannelRole{}, %{channel: channel, role: &1}))
 
     user
     |> Ecto.Changeset.change()
     |> Ecto.Changeset.put_assoc(:channel_roles, channel_roles)
-    |> Repo.update!()
+    |> Repo.update()
   end
 
   @doc ~S"""
