@@ -167,8 +167,8 @@ defmodule TwitchGameServer.CommandServer do
     queues
     |> Enum.map(fn {user, pid} ->
       Task.async(fn ->
-        with {cmd, timestamp, role} <- CommandQueue.out(pid) do
-          %{cmd: cmd, ts: timestamp, user: user, role: role}
+        with {cmd, timestamp, roles} <- CommandQueue.out(pid) do
+          %{cmd: cmd, ts: timestamp, user: user, roles: roles}
         end
       end)
     end)

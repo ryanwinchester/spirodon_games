@@ -58,7 +58,7 @@ defmodule TwitchGameServer.CommandQueue do
   def handle_cast({:add, cmd, msg, limit}, queue) do
     if :queue.len(queue) < limit do
       timestamp = DateTime.to_unix(msg.timestamp, :millisecond)
-      roles = Enum.reduce(ChannelRole.roles(), [], &add_role(&1, &2, msg))
+      roles = Enum.reduce(ChannelRole.roles(), [], &add_role(&1, msg, &2))
       {:noreply, :queue.in({cmd, timestamp, roles}, queue)}
     else
       {:noreply, queue}
