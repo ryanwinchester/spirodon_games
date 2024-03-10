@@ -26,6 +26,7 @@
           "roles": [
           <%= for role <- @current_user.roles do %>
             "<%= role %>",
+          <% end %>
           ];
         };
       </script>
