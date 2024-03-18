@@ -29,6 +29,8 @@ defmodule TwitchGameServerWeb.Router do
     pipe_through :game_auth
     get "/game", GameController, :show
 
+    get "/sum", SumController, :show
+
     live "/leaderboard", ScoreLive.Index, :index
     # live "/scores/new", ScoreLive.Index, :new
     # live "/scores/:id/edit", ScoreLive.Index, :edit

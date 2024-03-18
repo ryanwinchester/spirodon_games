@@ -54,7 +54,8 @@ defmodule TwitchGameServer.MixProject do
       {:bcrypt_elixir, "~> 3.0"},
       {:oauth2, "~> 2.0"},
       {:swoosh, "~> 1.4"},
-      {:twitch_chat, github: "hellostream/twitch_chat", branch: "main"}
+      {:twitch_chat, github: "hellostream/twitch_chat", branch: "main"},
+      {:wasmex, "~> 0.8.3"}
 
       # Testing
       # {:websockex, "~> 0.4.3", only: [:test]}
