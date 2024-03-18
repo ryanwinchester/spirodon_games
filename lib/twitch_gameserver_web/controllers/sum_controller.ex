@@ -8,7 +8,7 @@ defmodule TwitchGameServerWeb.SumController do
     {:ok, pid} = Wasmex.start_link(%{bytes: bytes})
 
     # Call the exported function
-    {:ok, [result]} = Wasmex.call_function(pid, "sum", [50, 8])
+    {:ok, [result]} = Wasmex.call_function(pid, "game_sum", [50, 8])
 
     # Use the result in your response
     json(conn, %{sum: result})
