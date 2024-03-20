@@ -20,7 +20,8 @@ defmodule TwitchGameServer.Application do
       TwitchGameServerWeb.Endpoint,
       {DynamicSupervisor, name: TwitchGameServer.DynamicSupervisor, strategy: :one_for_one},
       TwitchGameServer.CommandServer,
-      {TwitchChat.Supervisor, Application.get_env(:twitch_gameserver, :bot, start?: false)}
+      {TwitchChat.Supervisor, Application.get_env(:twitch_gameserver, :bot, start?: false)},
+      {TwitchEventSub.WebSocket, Application.fetch_env!(:twitch_gameserver, :event_sub)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

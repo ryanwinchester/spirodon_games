@@ -12,6 +12,7 @@ if config_env() != :test do
     twitch_channels = System.fetch_env!("TWITCH_CHANNELS") |> String.split(~r/,(\s*)?/)
     twitch_mod_channels = System.fetch_env!("TWITCH_MOD_CHANNELS") |> String.split(~r/,(\s*)?/)
     twitch_chat_token = System.fetch_env!("TWITCH_OAUTH_TOKEN")
+    twitch_user_id = System.fetch_env!("TWITCH_USER_ID")
 
     config :twitch_gameserver,
       bot: [
@@ -20,6 +21,13 @@ if config_env() != :test do
         pass: twitch_chat_token,
         channels: twitch_channels,
         mod_channels: twitch_mod_channels
+      ],
+      event_sub: [
+        user_id: twitch_user_id,
+        channels: twitch_channels,
+        handler: TwitchGameServer.TwitchEvents,
+        client_id: System.fetch_env!("TWITCH_CLIENT_ID"),
+        access_token: System.fetch_env!("TWITCH_ACCESS_TOKEN")
       ]
   end
 

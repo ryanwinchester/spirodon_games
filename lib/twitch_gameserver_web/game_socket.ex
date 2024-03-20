@@ -28,6 +28,7 @@ defmodule TwitchGameServerWeb.GameSocket do
   @impl Phoenix.Socket.Transport
   def init(state) do
     TwitchGameServer.subscribe("commands")
+    TwitchGameServer.subscribe("events")
     schedule_ping()
     {:ok, state}
   end
@@ -47,6 +48,10 @@ defmodule TwitchGameServerWeb.GameSocket do
   @impl Phoenix.Socket.Transport
   def handle_info({:commands, commands}, state) do
     {:push, {:text, Jason.encode!(%{data: %{commands: commands}})}, state}
+  end
+
+  def handle_info({:kraken_redeemed, event}, state) do
+    {:push, {:text, Jason.encode!(%{data: %{type: "kraken_redeemed", event: event}})}, state}
   end
 
   def handle_info(:send_ping, state) do

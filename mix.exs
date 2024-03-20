@@ -55,6 +55,7 @@ defmodule TwitchGameServer.MixProject do
       {:oauth2, "~> 2.0"},
       {:swoosh, "~> 1.4"},
       {:twitch_chat, github: "hellostream/twitch_chat", branch: "main"},
+      {:twitch_eventsub, github: "hellostream/twitch_eventsub", branch: "main"},
       {:wasmex, "~> 0.8.3"}
 
       # Testing
