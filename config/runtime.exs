@@ -24,7 +24,7 @@ if config_env() != :test do
       ],
       event_sub: [
         user_id: twitch_user_id,
-        channels: twitch_channels,
+        channel_ids: [twitch_user_id],
         handler: TwitchGameServer.TwitchEvents,
         client_id: System.fetch_env!("TWITCH_CLIENT_ID"),
         access_token: System.fetch_env!("TWITCH_ACCESS_TOKEN")
