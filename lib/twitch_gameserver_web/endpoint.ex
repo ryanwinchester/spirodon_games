@@ -25,6 +25,12 @@ defmodule TwitchGameServerWeb.Endpoint do
       check_origin: false
     ]
 
+  socket "/socket", TwitchGameServerWeb.NewGameSocket,
+    websocket: [
+      connect_info: [],
+      check_origin: false
+    ]
+
   # Serve at "/" the static files from "priv/static" directory.
   #
   # You should set gzip to true if you are running phx.digest
